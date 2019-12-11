@@ -1,11 +1,3 @@
-/**
-Module: sharedTools.h
-
-@brief includes defines and function used in both the client and the server
-@auther Hannes Dallinger 11775789
-@date 10.4.2019
-*/
-
 #include <stdio.h>
 
 char * fileName;

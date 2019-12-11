@@ -1,11 +1,3 @@
-/**
-Module: sharedTools.c
-
-@brief implements sharedTools.h
-@auther Hannes Dallinger 11775789
-@date 10.4.2019
-*/
-
 #include "sharedTools.h"
 #include <unistd.h>
 #include <ctype.h>

@@ -30,3 +30,8 @@ target_compile_options(server PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE 
 
 add_executable(client 1b/html/requestHandling/sharedTools.c 1b/html/requestHandling/sharedTools.h 1b/html/client/client.c)
 target_compile_options(client PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+#intmul c
+
+add_executable(intmul 2/intmul/intmul.c)
+target_compile_options(intmul PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
