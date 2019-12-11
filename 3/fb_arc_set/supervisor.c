@@ -1,14 +1,7 @@
-#include <fcntl.h> 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <sys/mman.h> 
-#include <sys/types.h> 
-#include <sys/stat.h>
-#include <semaphore.h>
-#include <unistd.h> 
 #include <limits.h>
-#include "circularBuffer.h"
 #include <signal.h> 
+
+#include "circularBuffer.h"
 
 int gen;
 

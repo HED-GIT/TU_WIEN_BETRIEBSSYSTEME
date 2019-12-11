@@ -1,13 +1,4 @@
 #include "circularBuffer.h"
-#include <fcntl.h> 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <sys/mman.h> 
-#include <sys/types.h> 
-#include <sys/stat.h>
-#include <semaphore.h>
-#include <unistd.h> 
-#include <time.h> 
 
 
 /**
@@ -15,7 +6,7 @@
 *@param value that should be saved to the buffer
 */
 
-void circ_buf_write(returnValue val) {		//TODO ADD SEMAPHORE CHECKING WRITEPOS
+void circ_buf_write(returnValue val) {
 
 
 	if (sem_wait(free_sem) != 0) {

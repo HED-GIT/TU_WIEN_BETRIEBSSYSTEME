@@ -9,7 +9,6 @@
 #include <time.h> 
 
 #define SHMNAME "/11775789SHM"
-#define STATENAME "/11775789state"
 #define MAXGRAPHSIZE 100
 
 #define SEM_1 "/11775789sem_1"
