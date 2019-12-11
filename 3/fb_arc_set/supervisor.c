@@ -3,8 +3,6 @@
 
 #include "circularBuffer.h"
 
-int gen;
-
 /**
 *@brief get called on SIGINT and SIGTERM signals
 *@detail starts the cleanup terminates the programm and the ./generator
@@ -32,6 +30,7 @@ int main(int argc, char * argv[]) {
 
   int min = INT_MAX;
   fprintf(stdout, "please start ./generator\n");
+  int gen = 0;
   while (1) {
     gen=get_state()-1;
     returnValue read = circ_buf_read();
