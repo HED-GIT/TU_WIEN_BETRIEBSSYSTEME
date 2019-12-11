@@ -73,10 +73,7 @@ int main(int argc, char * argv[]) {
   readInput(argc,argv,&graph[0]);
   int counter;
   int amountVertices = getMaxInt(graph, argc - 1) + 1;
-  while (1) {
-    if (get_state() <= 0) {
-      break;
-    }
+  while (get_state() > 0) {
     returnValue returns;
  
     int permutation[amountVertices];
@@ -103,15 +100,9 @@ int main(int argc, char * argv[]) {
       }
     }
     returns.amount = counter;
-    if (get_state() <= 0) {
-      break;
-    }
     if (counter == MAXRETURN+1) {
       fprintf(stdout, "more then %d edges\n",MAXRETURN);
     } else {
-    if (get_state() <= 0) {
-      break;
-    }
       circ_buf_write(returns);
       printEdge(returns.returnEdges, returns.amount);
     }
