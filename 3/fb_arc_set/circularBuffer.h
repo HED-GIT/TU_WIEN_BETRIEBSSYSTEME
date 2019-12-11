@@ -14,6 +14,7 @@
 
 #define SEM_1 "/11775789sem_1"
 #define SEM_2 "/11775789sem_2"
+#define SEM_W "/11775789sem_W"
 #define BUFFERLENGTH 5
 
 #define MAXRETURN 8
@@ -22,6 +23,7 @@ char * name;
 
 sem_t * free_sem;
 sem_t * used_sem;
+sem_t * write_sem;
 
 int shmstate;
 int shmfd;
@@ -45,10 +47,14 @@ typedef struct returnValue {
 }
 returnValue;
 
-int * state;
-returnValue * buf;
-int write_pos;
-int read_pos;
+typedef struct buffer{
+	int state;
+	returnValue values[BUFFERLENGTH];
+	int writePosition;
+	int readPosition;
+} buffer;
+
+buffer * buf;
 
 
 /**
@@ -62,6 +68,22 @@ void circ_buf_write(returnValue val);
 *@return value that was read from the circularbuffer
 */
 returnValue circ_buf_read();
+
+void setup_buffer();
+
+void clean_buffer();
+
+void load_buffer();
+
+void clean_loaded_buffer();
+
+void increment_state();
+
+void decrement_state();
+
+void set_state(int i);
+
+int get_state();
 
 /**
 *@brief prints a default error message to the console and terminates the program

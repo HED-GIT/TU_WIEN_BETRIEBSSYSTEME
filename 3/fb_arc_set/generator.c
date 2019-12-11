@@ -26,20 +26,6 @@ void permutations(int * x, int n) {
 
 }
 
-/**
-*@brief cleanup
-*@detail handels cleanup
-*/
-void cleanup(void){
-
-  munmap(buf, sizeof( * buf));
-  munmap(state, sizeof(int));
-  close(shmfd);
-  close(shmstate);
-  sem_close(free_sem);
-  sem_close(used_sem);
-  fprintf(stdout,"cleanup\n");
-}
 
 /**
 *@brief gets the highest vertice of an array
@@ -66,7 +52,7 @@ void readInput(const int argc, char * argv[], edge * graph){
   for (int i = 1; i < argc; i++) {
     edge newEdge;
     if (sscanf(argv[i], "%d-%d", & newEdge.start, & newEdge.end) != 2 || newEdge.start < 0 || newEdge.end < 0) {
-      cleanup();
+      clean_loaded_buffer();
       printError("edge format has to be 'node'-'node'\nall nodes have to be a positiv integer value ");
     }
     graph[i - 1] = newEdge;
@@ -80,49 +66,24 @@ void readInput(const int argc, char * argv[], edge * graph){
 */
 int main(int argc, char * argv[]) {
   name = argv[0];
-  srand(time(0));
   edge graph[argc - 1];
 
-  int shmfd = shm_open(SHMNAME, O_RDWR | O_CREAT, 0600);
-  if (shmfd == -1) {
-    cleanup();
-    printError("shm_open failed");
-  }
-
-  buf = mmap(NULL, sizeof( * buf), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd, 0);
-  if (buf == MAP_FAILED) {
-    cleanup();
-    printError("mmap failed");
-  }
-  free_sem = sem_open(SEM_1, BUFFERLENGTH);
-  used_sem = sem_open(SEM_2, 0);
-  if (free_sem == SEM_FAILED || used_sem == SEM_FAILED) {   
-    cleanup();
-    printError("sem_open failed");
-  }
+  load_buffer();
+  
+  
   if (1 == argc) {
-    cleanup();
+    clean_loaded_buffer();
     printError("graph has to have at least one edge");
   }
 
-  int shmstate = shm_open(STATENAME, O_RDWR | O_CREAT, 0600);
-  if (shmstate == -1) {
-    cleanup();
-    printError("error at opening shared memory");
-  }
-  state = mmap(NULL, sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED, shmstate, 0);
-  if (state == MAP_FAILED) {
-    cleanup();
-    printError("mmap failed");
-  }
-  ( * state) ++;
-  srand(time(0) + ( * state) * 1000);
+  increment_state();
+  srand(time(0) + get_state() * 1000);
   
   readInput(argc,argv,&graph[0]);
   int counter;
   int amountVertices = getMaxInt(graph, argc - 1) + 1;
   while (1) {
-    if (( * state) <= 0) {
+    if (get_state() <= 0) {
       break;
     }
     returnValue returns;
@@ -151,28 +112,24 @@ int main(int argc, char * argv[]) {
       }
     }
     returns.amount = counter;
-    if (( * state) <= 0) {
+    if (get_state() <= 0) {
       break;
     }
     if (counter == MAXRETURN+1) {
       fprintf(stdout, "more then %d edges\n",MAXRETURN);
     } else {
-    if (( * state) <= 0) {
+    if (get_state() <= 0) {
       break;
     }
       circ_buf_write(returns);
       printEdge(returns.returnEdges, returns.amount);
     }
-    /*if (counter == 0) {
-      fprintf(stdout, "graph is acyclic\n");
-      break;
-    }*/
 
   }
-  (*state)--;
+  decrement_state();
   sem_post(used_sem);
   sem_post(free_sem);
-  cleanup();
+  clean_loaded_buffer();
   exit(EXIT_SUCCESS);
 }
 
