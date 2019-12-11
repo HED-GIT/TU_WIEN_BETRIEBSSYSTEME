@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.5)
+cmake_minimum_required(VERSION 3.10.2)
 
 project(projects LANGUAGES C CXX)
 
@@ -36,8 +36,8 @@ target_compile_options(client PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE 
 add_executable(intmul 2/intmul/intmul.c)
 target_compile_options(intmul PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 
-#intmul c
+#forkFFT c
 
 add_executable(forkFFT 2/forkFFT/forkFFT.c)
 target_compile_options(forkFFT PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
-target_link_options(forkFFT PUBLIC -lm)
+target_link_libraries(forkFFT m)
