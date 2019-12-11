@@ -41,3 +41,14 @@ target_compile_options(intmul PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE 
 add_executable(forkFFT 2/forkFFT/forkFFT.c)
 target_compile_options(forkFFT PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 target_link_libraries(forkFFT m)
+
+#fb_arc_set c
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/fb_arc_set)
+add_executable(generator 3/fb_arc_set/generator.c 3/fb_arc_set/circularBuffer.c)
+target_link_libraries(generator pthread rt)
+target_compile_options(generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+add_executable(supervisor 3/fb_arc_set/supervisor.c 3/fb_arc_set/circularBuffer.c)
+target_link_libraries(supervisor pthread rt)
+target_compile_options(supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
