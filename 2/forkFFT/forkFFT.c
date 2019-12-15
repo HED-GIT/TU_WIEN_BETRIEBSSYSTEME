@@ -12,19 +12,19 @@
 /**
 *@brief saves the real and the imaginary part of a complex number
 */
-struct complexNumber {
+typedef struct ComplexNumber {
     float imaginary;
     float real;
 
-};
+}ComplexNumber;
 
 /**
 *@brief adds two complexNumbers
 *@param the complexNumbers to add
 *@return new complexNumber with the added value
 */
-static struct complexNumber add(struct complexNumber x, struct complexNumber y) {
-    struct complexNumber z;
+static ComplexNumber add(ComplexNumber x, ComplexNumber y) {
+    ComplexNumber z;
     z.imaginary = x.imaginary + y.imaginary;
     z.real = x.real + y.real;
     return z;
@@ -35,8 +35,8 @@ static struct complexNumber add(struct complexNumber x, struct complexNumber y) 
 *@param the complexNumbers to subtract
 *@return new complexNumber with the subtracted value
 */
-static struct complexNumber subtract(struct complexNumber x, struct complexNumber y) {
-    struct complexNumber z;
+static ComplexNumber subtract(ComplexNumber x, ComplexNumber y) {
+    ComplexNumber z;
     z.imaginary = x.imaginary - y.imaginary;
     z.real = x.real - y.real;
     return z;
@@ -47,8 +47,8 @@ static struct complexNumber subtract(struct complexNumber x, struct complexNumbe
 *@param the complexNumbers to multiply
 *@return new complexNumber with the multiplied value
 */
-static struct complexNumber multiply(struct complexNumber x, struct complexNumber y) {
-    struct complexNumber z;
+static ComplexNumber multiply(ComplexNumber x, ComplexNumber y) {
+    ComplexNumber z;
     z.imaginary = ((x.real) * (y.imaginary) + (x.imaginary) * (y.real));
     z.real = (x.real) * (y.real) - (x.imaginary) * (y.imaginary);
     return z;
@@ -59,8 +59,8 @@ static struct complexNumber multiply(struct complexNumber x, struct complexNumbe
 *@param the complexNumber to copy
 *@return new complexNumber with values of complexNumber
 */
-static struct complexNumber copy(struct complexNumber a) {
-    struct complexNumber returnNumber;
+static ComplexNumber copy(ComplexNumber a) {
+    ComplexNumber returnNumber;
     returnNumber.real = a.real;
     returnNumber.imaginary = a.imaginary;
     return returnNumber;
@@ -139,7 +139,7 @@ static void checkForNumber(char text[]) {
 *amount of lines read from stdin has to be 2^n (n>=0)
 */
 int main(int argc, char * argv[]) {
-    struct complexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
+    ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
     int counter = 0;					//saves amount of numbers read from stdin
 
     if (argc != 1) {
@@ -173,7 +173,7 @@ int main(int argc, char * argv[]) {
         standardError("amount of input must be 2^n!",argv[0]);
     }
 
-    struct complexNumber newNumbers[counter];	//saves new calculated numbers
+    ComplexNumber newNumbers[counter];	//saves new calculated numbers
 
     int pipeEWrite[2];				//pipes for writing/reading to to/from child process
     int pipeERead[2];
@@ -243,11 +243,11 @@ int main(int argc, char * argv[]) {
     FILE * fileO = fdopen(pipeORead[0], "r");	//opens pipe as file
 
     for (int k = 0; k < counter / 2; k++) {
-        struct complexNumber e; 		//saves read E-value
-        struct complexNumber o;			//saves read O-value
+        ComplexNumber e; 		//saves read E-value
+        ComplexNumber o;			//saves read O-value
 	//E is actually O and O is actually E (writes wrong values to wrong pipe)
-        struct complexNumber new1;		//saves new calculated value
-        struct complexNumber new2;		//saves new calculated value
+        ComplexNumber new1;		//saves new calculated value
+        ComplexNumber new2;		//saves new calculated value
         getline( & eline, & length, fileE);
         e.real = strtof(eline, & eline);
         e.imaginary = strtof(eline, & eline);
