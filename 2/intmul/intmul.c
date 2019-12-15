@@ -422,5 +422,6 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < strlen(returnChildHH); i++) {
 		fprintf(stdout, "%c", returnChildHH[i]);
 	}
+	fprintf(stdout, "\n");
 	SUCCESS_EXIT();
 }
