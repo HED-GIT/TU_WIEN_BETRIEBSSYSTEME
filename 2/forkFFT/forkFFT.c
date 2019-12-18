@@ -5,6 +5,7 @@
 #include <fcntl.h> 
 #include <string.h> 
 #include <math.h>
+#include <ctype.h>
 
 #define PI 3.141592654
 #define MAXLENGTH 100000
@@ -23,11 +24,9 @@ typedef struct ComplexNumber {
 *@param the complexNumbers to add
 *@return new complexNumber with the added value
 */
-static ComplexNumber add(ComplexNumber x, ComplexNumber y) {
-    ComplexNumber z;
-    z.imaginary = x.imaginary + y.imaginary;
-    z.real = x.real + y.real;
-    return z;
+static void add(ComplexNumber * x, ComplexNumber * y) {
+    x->imaginary += y->imaginary;
+    x->real += y->real;
 }
 
 /**
@@ -35,11 +34,9 @@ static ComplexNumber add(ComplexNumber x, ComplexNumber y) {
 *@param the complexNumbers to subtract
 *@return new complexNumber with the subtracted value
 */
-static ComplexNumber subtract(ComplexNumber x, ComplexNumber y) {
-    ComplexNumber z;
-    z.imaginary = x.imaginary - y.imaginary;
-    z.real = x.real - y.real;
-    return z;
+static void subtract(ComplexNumber * x, ComplexNumber * y) {
+    x->imaginary -= y->imaginary;
+    x->real -= y->real;
 }
 
 /**
@@ -47,23 +44,13 @@ static ComplexNumber subtract(ComplexNumber x, ComplexNumber y) {
 *@param the complexNumbers to multiply
 *@return new complexNumber with the multiplied value
 */
-static ComplexNumber multiply(ComplexNumber x, ComplexNumber y) {
+static void multiply(ComplexNumber * x, ComplexNumber * y) {
     ComplexNumber z;
-    z.imaginary = ((x.real) * (y.imaginary) + (x.imaginary) * (y.real));
-    z.real = (x.real) * (y.real) - (x.imaginary) * (y.imaginary);
-    return z;
-}
-
-/**
-*@brief creates a copy of a complexNumber
-*@param the complexNumber to copy
-*@return new complexNumber with values of complexNumber
-*/
-static ComplexNumber copy(ComplexNumber a) {
-    ComplexNumber returnNumber;
-    returnNumber.real = a.real;
-    returnNumber.imaginary = a.imaginary;
-    return returnNumber;
+	z.real=x->real;
+	z.imaginary=x->imaginary;
+	
+    x->imaginary = ((z.real) * (y->imaginary) + (z.imaginary) * (y->real));
+    x->real = (z.real) * (y->real) - (z.imaginary) * (y->imaginary);
 }
 
 /**
@@ -94,7 +81,7 @@ static void checkForNumber(char text[]) {
     int numbers = 1;		//counts amount of numbers already read
     int firstChar = 0;		//says if the first char was already read
     while (text[i] != '\n') {
-        if (text[i] == '0' || text[i] == '1' || text[i] == '2' || text[i] == '3' || text[i] == '4' || text[i] == '5' || text[i] == '6' || text[i] == '7' || text[i] == '8' || text[i] == '9') {
+        if (isdigit(text[i])) {
             readingNumber = 1;
             firstChar = 1;
         } else if (text[i] == '-') {
@@ -173,7 +160,7 @@ int main(int argc, char * argv[]) {
         standardError("amount of input must be 2^n!",argv[0]);
     }
 
-    ComplexNumber newNumbers[counter];	//saves new calculated numbers
+    ComplexNumber ** newNumbers = malloc(sizeof(ComplexNumber)*counter);	//saves new calculated numbers
 
     int pipeEWrite[2];				//pipes for writing/reading to to/from child process
     int pipeERead[2];
@@ -246,8 +233,8 @@ int main(int argc, char * argv[]) {
         ComplexNumber e; 		//saves read E-value
         ComplexNumber o;			//saves read O-value
 	//E is actually O and O is actually E (writes wrong values to wrong pipe)
-        ComplexNumber new1;		//saves new calculated value
-        ComplexNumber new2;		//saves new calculated value
+        ComplexNumber  *new1 = malloc(sizeof(ComplexNumber));		//saves new calculated value
+        ComplexNumber * new2 = malloc(sizeof(ComplexNumber));		//saves new calculated value
         getline( & eline, & length, fileE);
         e.real = strtof(eline, & eline);
         e.imaginary = strtof(eline, & eline);
@@ -256,20 +243,22 @@ int main(int argc, char * argv[]) {
         o.real = strtof(oline, & oline);
         o.imaginary = strtof(oline, & oline);
 
-        new1.real = cos((-((2 * PI) / counter)) * k);
-        new1.imaginary = sin((-((2 * PI) / counter)) * k);
-        new1 = multiply(new1, e);
-        new1 = add(o, new1);
-        newNumbers[k] = copy(new1);
+        new1->real = cos((-((2 * PI) / counter)) * k);
+        new1->imaginary = sin((-((2 * PI) / counter)) * k);
+        multiply(new1, &e);
+		add(new1,&o);
+        newNumbers[k] = new1;
 
-        new2.real = cos((-((2 * PI) / counter)) * (k));
-        new2.imaginary = sin((-((2 * PI) / counter)) * (k));
-        new2 = multiply(new2, e);
-        new2 = subtract(o, new2);
-        newNumbers[k + (counter / 2)] = copy(new2);
+        new2->real = cos((-((2 * PI) / counter)) * (k));
+        new2->imaginary = sin((-((2 * PI) / counter)) * (k));
+        multiply(new2, &e);
+        subtract(new2, &o);
+        newNumbers[k + (counter / 2)] = new2;
     }
     for (int i = 0; i < counter; i++) {
-        fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i].real, newNumbers[i].imaginary);
+        fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i]->real, newNumbers[i]->imaginary);
     }
+	
+	//TODO free allvalues of newNumbers and the pointer
     exit(EXIT_SUCCESS);
 }
