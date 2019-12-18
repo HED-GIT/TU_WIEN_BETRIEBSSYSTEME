@@ -75,11 +75,9 @@ static void multiply(ComplexNumber * x, ComplexNumber * y) {
 
 regex_t preg;
 static void checkForNumber(char * text) {
-	regmatch_t * pmatch = malloc(sizeof(regmatch_t)*1000);
-    if(regexec(&preg, text,0,pmatch,0)==REG_NOMATCH){
+    if(regexec(&preg, text,0,NULL,0)==REG_NOMATCH){
 		ERROR_EXIT("invalid complexNumber");
 	}
-	
 }
 
 static void regexInit(){
