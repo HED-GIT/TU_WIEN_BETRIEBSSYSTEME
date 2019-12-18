@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#define USAGE() {fprintf(stderr,"USAGE:\t./intmul\n"); exit(EXIT_FAILURE);}
+#define USAGE() {fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}
 #define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
 #define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
 
