@@ -2,6 +2,8 @@
 #include <stdlib.h> 
 #include <unistd.h> 
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <regex.h>
 #include <fcntl.h> 
 #include <string.h> 
 #include <math.h>
@@ -9,6 +11,8 @@
 
 #define PI 3.141592654
 #define MAXLENGTH 100000
+
+#define REGEX "\\d*(.\\d*)?(\\s\\d*(.\\d*)?\\s\\*i)?\\n?"
 
 /**
 *@brief saves the real and the imaginary part of a complex number
@@ -73,50 +77,23 @@ static void standardError(char text[MAXLENGTH],char argv[]) {
 *all numbers have to be valid numbers (- only allowed once and only on the beginning, only one '.' per number)
 *string is only allowed to contain {{'0'..'9'}, '.' , '-' , '*' , 'i' , '\n' , ' '}
 */
-static void checkForNumber(char text[]) {
-    int i = 0;			//position on string
-    int dots = 0;		//amount of dots already found
-    int dotThisNumber = 0;	//amount of dots in current number
-    int readingNumber = 1;	//1 if currently reading a number else 0
-    int numbers = 1;		//counts amount of numbers already read
-    int firstChar = 0;		//says if the first char was already read
-    while (text[i] != '\n') {
-        if (isdigit(text[i])) {
-            readingNumber = 1;
-            firstChar = 1;
-        } else if (text[i] == '-') {
-            if (readingNumber == 1 && firstChar != 0) {
-                standardError("wrong - position","./forkFFT");
-            } else {
-                readingNumber = 1;
-            }
-        } else if (text[i] == '*') {
-            if (text[i + 1] == 'i' && numbers == 2)
-                return;
-            else {
-                standardError("no real Number(only imaginary is optional)!\nOr it doesn't terminate with \"*i\"","./forkFFT");
-            }
-        } else if (text[i] == '.' && (dotThisNumber == 1 || dots == 2 || readingNumber == 0)) {
-            standardError("input Error","./forkFFT");
-        } else if (text[i] == '.') {
-            dotThisNumber++;
-            dots++;
-        } else if (text[i] == ' ') {
-            dotThisNumber = 0;
-            if (firstChar == 0) {
-                standardError("space as first char is not allowed","./forkFFT");
-            }
-            if (readingNumber == 1)
-                numbers++;
-            readingNumber = 0;
-        } else {
-            standardError("invalid Value in imputstring","./forkFFT");
-        }
-        i++;
-    }
 
+regex_t preg;
+static void checkForNumber(char * text) {
+	regmatch_t * pmatch = malloc(sizeof(regmatch_t)*1000);
+    if(regexec(&preg, text,0,pmatch,0)==REG_NOMATCH){
+		standardError("invalid complexNumber","./forkFFT");
+	}
+	
 }
 
+static void regexInit(){
+	regcomp(&preg, REGEX,REG_EXTENDED);
+}
+
+static void freeRegex(){
+	regfree(&preg);
+}
 
 /**
 *@brief Programm entry point
@@ -126,7 +103,9 @@ static void checkForNumber(char text[]) {
 *amount of lines read from stdin has to be 2^n (n>=0)
 */
 int main(int argc, char * argv[]) {
-    ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
+    regexInit();
+	
+	ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
     int counter = 0;					//saves amount of numbers read from stdin
 
     if (argc != 1) {
@@ -259,6 +238,7 @@ int main(int argc, char * argv[]) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i]->real, newNumbers[i]->imaginary);
 		free(newNumbers[i]);
 	}
+	freeRegex();
 	free(newNumbers);
     exit(EXIT_SUCCESS);
 }
