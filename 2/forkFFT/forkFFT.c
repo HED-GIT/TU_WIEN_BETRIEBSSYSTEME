@@ -12,7 +12,13 @@
 #define PI 3.141592654
 #define MAXLENGTH 100000
 
+#define USAGE() {fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}
+#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
+#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
+
 #define REGEX "\\d*(.\\d*)?(\\s\\d*(.\\d*)?\\s\\*i)?\\n?"
+
+char * fileName;
 
 /**
 *@brief saves the real and the imaginary part of a complex number
@@ -58,17 +64,6 @@ static void multiply(ComplexNumber * x, ComplexNumber * y) {
 }
 
 /**
-*@brief prints out errormessage to stderr and ends the programm
-*@param the error message and the name of the program
-*/
-static void standardError(char text[MAXLENGTH],char argv[]) {
-    fprintf(stderr, "%s:  %s\n", argv ,text);
-    fprintf(stderr, "break\n\n");
-    exit(EXIT_FAILURE);
-
-}
-
-/**
 *@brief checks if the given string is a valid input, if not ends the programm
 *@param the string to be checked
 *@detail string is not allowed to have a ' ' at the beginning
@@ -82,7 +77,7 @@ regex_t preg;
 static void checkForNumber(char * text) {
 	regmatch_t * pmatch = malloc(sizeof(regmatch_t)*1000);
     if(regexec(&preg, text,0,pmatch,0)==REG_NOMATCH){
-		standardError("invalid complexNumber","./forkFFT");
+		ERROR_EXIT("invalid complexNumber");
 	}
 	
 }
@@ -103,13 +98,15 @@ static void freeRegex(){
 *amount of lines read from stdin has to be 2^n (n>=0)
 */
 int main(int argc, char * argv[]) {
-    regexInit();
+    fileName = argv[0];
+	
+	regexInit();
 	
 	ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
     int counter = 0;					//saves amount of numbers read from stdin
 
     if (argc != 1) {
-        standardError("no arguments allowed",argv[0]);
+        USAGE();
     }
 
     char * line = NULL;	//read string from stdin
@@ -121,22 +118,22 @@ int main(int argc, char * argv[]) {
         readNumbers[counter].real = strtof(line, & end);
         checkForNumber(line);
         if (!( * end != '\n' || * end != ' ')) {
-            standardError("test",argv[0]);
+            ERROR_EXIT("test");
         }
         readNumbers[counter].imaginary = strtof(end, & end);
 
         if (!( * end != '\n' || * end != ' ' || * end != '*')) {
-            standardError("test",argv[0]);
+            ERROR_EXIT("test");
         }
         counter++;
     }
 
     if (counter == 1) {
         fprintf(stdout, "%f %f *i\n", readNumbers[0].real, readNumbers[0].imaginary);
-        exit(EXIT_SUCCESS);
+        SUCCESS_EXIT();
     }
     if (counter % 2 != 0) {
-        standardError("amount of input must be 2^n!",argv[0]);
+        ERROR_EXIT("amount of input must be 2^n!");
     }
 
     ComplexNumber ** newNumbers = malloc(sizeof(ComplexNumber)*counter);	//saves new calculated numbers
@@ -146,11 +143,11 @@ int main(int argc, char * argv[]) {
     int pipeOWrite[2];
     int pipeORead[2];
     if (pipe(pipeEWrite) == -1 || pipe(pipeERead) == -1 || pipe(pipeOWrite) == -1 || pipe(pipeORead) == -1) {
-        standardError("Pipe-Error",argv[0]);
+        ERROR_EXIT("Pipe-Error");
     }
 
     int p1;					//first child process
-    if((p1 = fork())==-1){standardError("fork-Error",argv[0]);}				
+    if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
     if (p1 == 0) {
         close(pipeEWrite[1]);
         close(pipeERead[0]);
@@ -158,14 +155,14 @@ int main(int argc, char * argv[]) {
         close(pipeOWrite[0]);
         close(pipeORead[0]);
         close(pipeORead[1]);
-        if(dup2(pipeEWrite[0], STDIN_FILENO)==-1){standardError("dup-Error",argv[0]);}
-        if(dup2(pipeERead[1], STDOUT_FILENO)==-1){standardError("dup-Error",argv[0]);}
+        if(dup2(pipeEWrite[0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
+        if(dup2(pipeERead[1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
         close(pipeEWrite[0]);
         close(pipeERead[1]);
-        if(execlp("./forkFFT", "argv[0]", NULL)==-1){standardError("execlp-Error",argv[0]);}
+        if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     int p2;					//second child process
-    if((p2 = fork())==-1){standardError("fork-Error",argv[0]);}	
+    if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
     if (p2 == 0) {
         close(pipeOWrite[1]);
         close(pipeORead[0]);
@@ -173,11 +170,11 @@ int main(int argc, char * argv[]) {
         close(pipeEWrite[0]);
         close(pipeERead[0]);
         close(pipeERead[1]);
-        if(dup2(pipeOWrite[0], STDIN_FILENO)==-1){standardError("dup-Error",argv[0]);}
-        if(dup2(pipeORead[1], STDOUT_FILENO)==-1){standardError("dup-Error",argv[0]);}
+        if(dup2(pipeOWrite[0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
+        if(dup2(pipeORead[1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
         close(pipeOWrite[0]);
         close(pipeORead[1]);
-        if(execlp("./forkFFT", "argv[0]", NULL)==-1){standardError("execlp-Error",argv[0]);}
+        if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     close(pipeEWrite[0]);
     close(pipeOWrite[0]);
@@ -240,5 +237,5 @@ int main(int argc, char * argv[]) {
 	}
 	freeRegex();
 	free(newNumbers);
-    exit(EXIT_SUCCESS);
+    SUCCESS_EXIT()
 }
