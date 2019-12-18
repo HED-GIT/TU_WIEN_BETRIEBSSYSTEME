@@ -257,8 +257,8 @@ int main(int argc, char * argv[]) {
     }
     for (int i = 0; i < counter; i++) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i]->real, newNumbers[i]->imaginary);
-    }
-	
-	//TODO free allvalues of newNumbers and the pointer
+		free(newNumbers[i]);
+	}
+	free(newNumbers);
     exit(EXIT_SUCCESS);
 }
