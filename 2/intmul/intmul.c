@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
 	
 	int pipes[8][2];
 
-	int pid0, pid1, pid2, pid3;
+	int pid[4];
 
 	if (pipe(pipes[READ_CHILD_HH]) == -1 || pipe(pipes[WRITE_CHILD_HH]) == -1
 		|| pipe(pipes[READ_CHILD_HL]) == -1 || pipe(pipes[WRITE_CHILD_HL]) == -1
@@ -202,12 +202,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	{
-		pid0 = fork();
-		if (pid0 < 0) {
+		pid[0] = fork();
+		if (pid[0] < 0) {
 			ERROR_EXIT("Error at forking");
 		}
 
-		else if (pid0 == 0) {
+		else if (pid[0] == 0) {
 			dupNeededPipes(8,pipes,READ_CHILD_HH,WRITE_CHILD_HH);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
@@ -217,11 +217,11 @@ int main(int argc, char *argv[]) {
 		//End fork1
 
 
-		pid1 = fork();
-		if (pid1 < 0) {
+		pid[1] = fork();
+		if (pid[1] < 0) {
 			ERROR_EXIT("Error at forking");
 		}
-		else if (pid1 == 0) {
+		else if (pid[1] == 0) {
 			dupNeededPipes(8,pipes,READ_CHILD_HL,WRITE_CHILD_HL);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
@@ -232,11 +232,11 @@ int main(int argc, char *argv[]) {
 
 		//END FORK 2
 
-		pid2 = fork();
-		if (pid2 < 0) {
+		pid[2] = fork();
+		if (pid[2] < 0) {
 			ERROR_EXIT("Error on fork");
 		}
-		else if (pid2 == 0) { 
+		else if (pid[2] == 0) { 
 			dupNeededPipes(8,pipes,READ_CHILD_LH,WRITE_CHILD_LH);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
@@ -247,11 +247,11 @@ int main(int argc, char *argv[]) {
 
 		//END FORK 3
 
-		pid3 = fork();
-		if (pid3 < 0) {
+		pid[3] = fork();
+		if (pid[3] < 0) {
 			ERROR_EXIT("Error on forking");
 		}
-		else if (pid3 == 0) { 
+		else if (pid[3] == 0) { 
 
 			dupNeededPipes(8,pipes,READ_CHILD_LL,WRITE_CHILD_LL);
 
@@ -289,13 +289,13 @@ int main(int argc, char *argv[]) {
 		close(pipes[WRITE_CHILD_LL][WRITE]);
 
 		// Wait for child
-		int status0, status1, status2, status3;
-		waitpid(pid0, &status0, 0);
-		waitpid(pid1, &status1, 0);
-		waitpid(pid2, &status2, 0);
-		waitpid(pid3, &status3, 0);
+		int status[4];
+		waitpid(pid[0], &status[0], 0);
+		waitpid(pid[1], &status[1], 0);
+		waitpid(pid[2], &status[2], 0);
+		waitpid(pid[3], &status[3], 0);
 
-		if (WEXITSTATUS(status0) == 1 || WEXITSTATUS(status1) == 1 || WEXITSTATUS(status2) == 1 || WEXITSTATUS(status3) == 1) {
+		if (WEXITSTATUS(status[0]) == 1 || WEXITSTATUS(status[1]) == 1 || WEXITSTATUS(status[2]) == 1 || WEXITSTATUS(status[3]) == 1) {
 			ERROR_EXIT("Error in the childprocess");
 			exit(EXIT_FAILURE);
 		}
