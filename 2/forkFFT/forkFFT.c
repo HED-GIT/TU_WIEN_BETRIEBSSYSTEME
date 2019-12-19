@@ -144,7 +144,7 @@ int main(int argc, char * argv[]) {
         }
         readNumbers[counter].imaginary = strtof(end, & end);
 
-        if (!( * end != '\n' || * end != ' ' || * end != '*')) {
+        if (!( * end != '\n' || * end != ' ')) {
             ERROR_EXIT("test");
         }
         counter++;
