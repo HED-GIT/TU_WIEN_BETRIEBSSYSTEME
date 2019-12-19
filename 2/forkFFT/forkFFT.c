@@ -18,6 +18,14 @@
 
 #define REGEX "\\d*(.\\d*)?(\\s\\d*(.\\d*)?\\s\\*i)?\\n?"
 
+#define PIPE_E_WRITE 0
+#define PIPE_O_WRITE 1
+#define PIPE_E_READ 2
+#define PIPE_O_READ 3
+
+#define READ 0
+#define WRITE 1
+
 char * fileName;
 
 /**
@@ -88,6 +96,22 @@ static void freeRegex(){
 	regfree(&preg);
 }
 
+static void dupNeededPipes(int pipeAmount, int pipes[pipeAmount][2], int neededReadPipe, int neededWritePipe){
+	for(int i= 0;i<pipeAmount;i++){
+	
+		if(i==neededReadPipe){
+			if(dup2(pipes[i][1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
+		}
+		else if(i==neededWritePipe){
+			if(dup2(pipes[i][0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
+		}
+		
+		close(pipes[i][1]);
+		close(pipes[i][0]);
+		
+	}
+}
+
 /**
 *@brief Programm entry point
 *@detail reads from stdin, splits the values and gives them to two child process
@@ -136,60 +160,40 @@ int main(int argc, char * argv[]) {
 
     ComplexNumber ** newNumbers = malloc(sizeof(ComplexNumber)*counter);	//saves new calculated numbers
 
-    int pipeEWrite[2];				//pipes for writing/reading to to/from child process
-    int pipeERead[2];
-    int pipeOWrite[2];
-    int pipeORead[2];
-    if (pipe(pipeEWrite) == -1 || pipe(pipeERead) == -1 || pipe(pipeOWrite) == -1 || pipe(pipeORead) == -1) {
+	int pipes[4][2];
+
+    if (pipe(pipes[PIPE_E_WRITE]) == -1 || pipe(pipes[PIPE_E_READ]) == -1 || pipe(pipes[PIPE_O_WRITE]) == -1 || pipe(pipes[PIPE_O_READ]) == -1) {
         ERROR_EXIT("Pipe-Error");
     }
 
     int p1;					//first child process
     if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
     if (p1 == 0) {
-        close(pipeEWrite[1]);
-        close(pipeERead[0]);
-        close(pipeOWrite[1]);
-        close(pipeOWrite[0]);
-        close(pipeORead[0]);
-        close(pipeORead[1]);
-        if(dup2(pipeEWrite[0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
-        if(dup2(pipeERead[1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
-        close(pipeEWrite[0]);
-        close(pipeERead[1]);
+		dupNeededPipes(4,pipes,PIPE_E_READ,PIPE_E_WRITE);
         if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     int p2;					//second child process
     if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
     if (p2 == 0) {
-        close(pipeOWrite[1]);
-        close(pipeORead[0]);
-        close(pipeEWrite[1]);
-        close(pipeEWrite[0]);
-        close(pipeERead[0]);
-        close(pipeERead[1]);
-        if(dup2(pipeOWrite[0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
-        if(dup2(pipeORead[1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
-        close(pipeOWrite[0]);
-        close(pipeORead[1]);
+		dupNeededPipes(4, pipes,PIPE_O_READ,PIPE_O_WRITE);
         if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
-    close(pipeEWrite[0]);
-    close(pipeOWrite[0]);
-    close(pipeERead[1]);
-    close(pipeORead[1]);
+    close(pipes[PIPE_E_WRITE][READ]);
+    close(pipes[PIPE_O_WRITE][READ]);
+    close(pipes[PIPE_E_READ][WRITE]);
+    close(pipes[PIPE_O_READ][WRITE]);
     char floatToString[MAXLENGTH];		//string that will be writen to the pipe
 
     for (int i = 0; i < counter; i++) {
 
         snprintf(floatToString, sizeof(floatToString), "%.5f %.5f*i\n", readNumbers[i].real, readNumbers[i].imaginary);
         if (i % 2 == 1)
-            write(pipeEWrite[1], floatToString, (strlen(floatToString)));
+            write(pipes[PIPE_E_WRITE][WRITE], floatToString, (strlen(floatToString)));
         else
-            write(pipeOWrite[1], floatToString, (strlen(floatToString)));
+            write(pipes[PIPE_O_WRITE][WRITE], floatToString, (strlen(floatToString)));
     }
-    close(pipeEWrite[1]);
-    close(pipeOWrite[1]);
+    close(pipes[PIPE_E_WRITE][WRITE]);
+    close(pipes[PIPE_O_WRITE][WRITE]);
 
     int state;					//return state of the child process (never checked)
     waitpid(p1, &state, WEXITED);
@@ -200,8 +204,8 @@ int main(int argc, char * argv[]) {
     char * eline = NULL;			//read string with e values
     size_t length = 0;				//size of string for getline
 
-    FILE * fileE = fdopen(pipeERead[0], "r");	//opens pipe as file
-    FILE * fileO = fdopen(pipeORead[0], "r");	//opens pipe as file
+    FILE * fileE = fdopen(pipes[PIPE_E_READ][READ], "r");	//opens pipe as file
+    FILE * fileO = fdopen(pipes[PIPE_O_READ][READ], "r");	//opens pipe as file
 
     for (int k = 0; k < counter / 2; k++) {
         ComplexNumber e; 		//saves read E-value
@@ -233,6 +237,7 @@ int main(int argc, char * argv[]) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i]->real, newNumbers[i]->imaginary);
 		free(newNumbers[i]);
 	}
+	
 	freeRegex();
 	free(newNumbers);
     SUCCESS_EXIT()
