@@ -12,6 +12,18 @@
 #define MAXLENGTH 1024
 #define HEXDIGITS "0123456789ABCDEFabcdef"
 
+#define WRITE 1
+#define READ 0
+
+#define READ_CHILD_HH 0
+#define WRITE_CHILD_HH 1
+#define READ_CHILD_LH 2
+#define WRITE_CHILD_LH 3
+#define READ_CHILD_HL 4
+#define WRITE_CHILD_HL 5
+#define READ_CHILD_LL 6
+#define WRITE_CHILD_LL 7
+
 char * fileName;
 
 static int isHex(char *hexString);
@@ -114,6 +126,22 @@ static void addXZeros(char * a, int count) {
 	a[length] = '\0';
 }
 
+static void dupNeededPipes(int pipeAmount, int pipes[pipeAmount][2], int neededReadPipe, int neededWritePipe){
+	for(int i= 0;i<pipeAmount;i++){
+	
+		if(i==neededReadPipe){
+			if(dup2(pipes[i][1], STDOUT_FILENO)==-1){ERROR_EXIT("dup-Error");}
+		}
+		else if(i==neededWritePipe){
+			if(dup2(pipes[i][0], STDIN_FILENO)==-1){ERROR_EXIT("dup-Error");}
+		}
+		
+		close(pipes[i][1]);
+		close(pipes[i][0]);
+		
+	}
+}
+
 /**
 *@brief Programm entry point
 *@detail reads from stdin, splits the values and gives them to four child process
@@ -161,24 +189,15 @@ int main(int argc, char *argv[]) {
 		Al[i + 2] = '\0';
 		Bl[i + 2] = '\0';
 	}
-	int fd1ChildHH[2];
-	int fd2ChildHH[2];
-
-	int fd1ChildHL[2];
-	int fd2ChildHL[2];
-
-	int fd1ChildLH[2];
-	int fd2ChildLH[2];
-
-	int fd1ChildLL[2];
-	int fd2ChildLL[2];
+	
+	int pipes[8][2];
 
 	int pid0, pid1, pid2, pid3;
 
-	if (pipe(fd1ChildHH) == -1 || pipe(fd2ChildHH) == -1
-		|| pipe(fd1ChildHL) == -1 || pipe(fd2ChildHL) == -1
-		|| pipe(fd1ChildLH) == -1 || pipe(fd2ChildLH) == -1
-		|| pipe(fd1ChildLL) == -1 || pipe(fd2ChildLL) == -1) {
+	if (pipe(pipes[READ_CHILD_HH]) == -1 || pipe(pipes[WRITE_CHILD_HH]) == -1
+		|| pipe(pipes[READ_CHILD_HL]) == -1 || pipe(pipes[WRITE_CHILD_HL]) == -1
+		|| pipe(pipes[READ_CHILD_LH]) == -1 || pipe(pipes[WRITE_CHILD_LH]) == -1
+		|| pipe(pipes[READ_CHILD_LL]) == -1 || pipe(pipes[WRITE_CHILD_LL]) == -1) {
 		ERROR_EXIT("Error when opening pipes");
 	}
 
@@ -189,30 +208,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		else if (pid0 == 0) {
-			close(fd1ChildHL[0]);
-			close(fd1ChildLH[0]);
-			close(fd1ChildLL[0]);
-			close(fd2ChildHL[0]);
-			close(fd2ChildLH[0]);
-			close(fd2ChildLL[0]);
-			close(fd1ChildHL[1]);
-			close(fd1ChildLH[1]);
-			close(fd1ChildLL[1]);
-			close(fd2ChildHL[1]);
-			close(fd2ChildLH[1]);
-			close(fd2ChildLL[1]);
-
-			dup2(fd1ChildHH[0], STDIN_FILENO);
-			close(fd1ChildHH[1]);
-
-			close(fd1ChildHH[0]);
-			close(fd2ChildHH[0]);
-
-			if (dup2(fd2ChildHH[1], STDOUT_FILENO) == -1) {
-				ERROR_EXIT("Error on dup2");
-			}
-
-			close(fd2ChildHH[1]);
+			dupNeededPipes(8,pipes,READ_CHILD_HH,WRITE_CHILD_HH);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
 				ERROR_EXIT("Error on execlp");
@@ -226,31 +222,7 @@ int main(int argc, char *argv[]) {
 			ERROR_EXIT("Error at forking");
 		}
 		else if (pid1 == 0) {
-			close(fd1ChildHH[0]);
-			close(fd1ChildLH[0]);
-			close(fd1ChildLL[0]);
-			close(fd2ChildHH[0]);
-			close(fd2ChildLH[0]);
-			close(fd2ChildLL[0]);
-			close(fd1ChildHH[1]);
-			close(fd1ChildLH[1]);
-			close(fd1ChildLL[1]);
-			close(fd2ChildHH[1]);
-			close(fd2ChildLH[1]);
-			close(fd2ChildLL[1]);
-
-			dup2(fd1ChildHL[0], STDIN_FILENO);
-			close(fd1ChildHL[1]);
-
-			close(fd1ChildHL[0]);
-			close(fd2ChildHL[0]);
-
-
-			if (dup2(fd2ChildHL[1], STDOUT_FILENO) == -1) {
-				ERROR_EXIT("Error on dup2");
-			}
-
-			close(fd2ChildHL[1]);
+			dupNeededPipes(8,pipes,READ_CHILD_HL,WRITE_CHILD_HL);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
 				ERROR_EXIT("Error on execlp");
@@ -265,30 +237,7 @@ int main(int argc, char *argv[]) {
 			ERROR_EXIT("Error on fork");
 		}
 		else if (pid2 == 0) { 
-			close(fd1ChildHL[0]);
-			close(fd1ChildHH[0]);
-			close(fd1ChildLL[0]);
-			close(fd2ChildHL[0]);
-			close(fd2ChildHH[0]);
-			close(fd2ChildLL[0]);
-			close(fd1ChildHL[1]);
-			close(fd1ChildHH[1]);
-			close(fd1ChildLL[1]);
-			close(fd2ChildHL[1]);
-			close(fd2ChildHH[1]);
-			close(fd2ChildLL[1]);
-
-			dup2(fd1ChildLH[0], STDIN_FILENO);
-			close(fd1ChildLH[1]);
-
-			close(fd1ChildLH[0]);
-			close(fd2ChildLH[0]);
-
-			if (dup2(fd2ChildLH[1], STDOUT_FILENO) == -1) {
-				ERROR_EXIT("Error on dup2");
-			}
-
-			close(fd2ChildLH[1]);
+			dupNeededPipes(8,pipes,READ_CHILD_LH,WRITE_CHILD_LH);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
 				ERROR_EXIT("Error on execlp");
@@ -304,30 +253,7 @@ int main(int argc, char *argv[]) {
 		}
 		else if (pid3 == 0) { 
 
-			close(fd1ChildHL[0]);
-			close(fd1ChildLH[0]);
-			close(fd1ChildHH[0]);
-			close(fd2ChildHL[0]);
-			close(fd2ChildLH[0]);
-			close(fd2ChildHH[0]);
-			close(fd1ChildHL[1]);
-			close(fd1ChildLH[1]);
-			close(fd1ChildHH[1]);
-			close(fd2ChildHL[1]);
-			close(fd2ChildLH[1]);
-			close(fd2ChildHH[1]);
-
-			dup2(fd1ChildLL[0], STDIN_FILENO);
-			close(fd1ChildLL[1]);
-
-			close(fd1ChildLL[0]);
-			close(fd2ChildLL[0]);
-
-			if (dup2(fd2ChildLL[1], STDOUT_FILENO) == -1) {
-				ERROR_EXIT("Error on dup2");
-			}
-
-			close(fd2ChildLL[1]);
+			dupNeededPipes(8,pipes,READ_CHILD_LL,WRITE_CHILD_LL);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
 				ERROR_EXIT("Error on execlp");
@@ -339,28 +265,28 @@ int main(int argc, char *argv[]) {
 	{
 
 		// close all reading ends of writing pipe
-		close(fd1ChildHH[0]);
-		close(fd1ChildHL[0]);
-		close(fd1ChildLH[0]);
-		close(fd1ChildLL[0]);
+		close(pipes[WRITE_CHILD_HH][READ]);
+		close(pipes[WRITE_CHILD_HL][READ]);
+		close(pipes[WRITE_CHILD_LH][READ]);
+		close(pipes[WRITE_CHILD_LL][READ]);
 
 		//writing
 
-		write(fd1ChildHH[1], Ah, strlen(Ah));
-		write(fd1ChildHH[1], Bh, strlen(Bh));
-		close(fd1ChildHH[1]);
+		write(pipes[WRITE_CHILD_HH][WRITE], Ah, strlen(Ah));
+		write(pipes[WRITE_CHILD_HH][WRITE], Bh, strlen(Bh));
+		close(pipes[WRITE_CHILD_HH][WRITE]);
 
-		write(fd1ChildHL[1], Ah, strlen(Ah));
-		write(fd1ChildHL[1], Bl, strlen(Bl));
-		close(fd1ChildHL[1]);
+		write(pipes[WRITE_CHILD_HL][WRITE], Ah, strlen(Ah));
+		write(pipes[WRITE_CHILD_HL][WRITE], Bl, strlen(Bl));
+		close(pipes[WRITE_CHILD_HL][WRITE]);
 
-		write(fd1ChildLH[1], Al, strlen(Al));
-		write(fd1ChildLH[1], Bh, strlen(Bh));
-		close(fd1ChildLH[1]);
+		write(pipes[WRITE_CHILD_LH][WRITE], Al, strlen(Al));
+		write(pipes[WRITE_CHILD_LH][WRITE], Bh, strlen(Bh));
+		close(pipes[WRITE_CHILD_LH][WRITE]);
 
-		write(fd1ChildLL[1], Al, strlen(Al));
-		write(fd1ChildLL[1], Bl, strlen(Bl));
-		close(fd1ChildLL[1]);
+		write(pipes[WRITE_CHILD_LL][WRITE], Al, strlen(Al));
+		write(pipes[WRITE_CHILD_LL][WRITE], Bl, strlen(Bl));
+		close(pipes[WRITE_CHILD_LL][WRITE]);
 
 		// Wait for child
 		int status0, status1, status2, status3;
@@ -374,10 +300,10 @@ int main(int argc, char *argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		close(fd2ChildHH[1]);
-		close(fd2ChildHL[1]);
-		close(fd2ChildLH[1]);
-		close(fd2ChildLL[1]);
+		close(pipes[WRITE_CHILD_HH][WRITE]);
+		close(pipes[WRITE_CHILD_HL][WRITE]);
+		close(pipes[WRITE_CHILD_LH][WRITE]);
+		close(pipes[WRITE_CHILD_LL][WRITE]);
 	}
 
 	// Read string from child and close reading end.
@@ -389,21 +315,21 @@ int main(int argc, char *argv[]) {
 	{
 		int rv;
 
-		rv = read(fd2ChildHH[0], returnChildHH, length *2);
+		rv = read(pipes[READ_CHILD_HH][READ], returnChildHH, length *2);
 		returnChildHH[rv] = '\0';
-		close(fd2ChildHH[0]);
+		close(pipes[READ_CHILD_HH][READ]);
 
-		rv = read(fd2ChildHL[0], returnChildHL, length *2);
+		rv = read(pipes[READ_CHILD_HL][READ], returnChildHL, length *2);
 		returnChildHL[rv] = '\0';
-		close(fd2ChildHL[0]);
+		close(pipes[READ_CHILD_HL][READ]);
 
-		rv = read(fd2ChildLH[0], returnChildLH, length *2);
+		rv = read(pipes[READ_CHILD_LH][READ], returnChildLH, length *2);
 		returnChildLH[rv] = '\0';
-		close(fd2ChildLH[0]);
+		close(pipes[READ_CHILD_LH][READ]);
 
-		rv = read(fd2ChildLL[0], returnChildLL, length *2);
+		rv = read(pipes[READ_CHILD_LL][READ], returnChildLL, length *2);
 		returnChildLL[rv] = '\0';
-		close(fd2ChildLL[0]);
+		close(pipes[READ_CHILD_LL][READ]);
 	}
 
 	//calculation
