@@ -194,73 +194,29 @@ int main(int argc, char *argv[]) {
 
 	int pid[4];
 
+
 	if (pipe(pipes[READ_CHILD_HH]) == -1 || pipe(pipes[WRITE_CHILD_HH]) == -1
 		|| pipe(pipes[READ_CHILD_HL]) == -1 || pipe(pipes[WRITE_CHILD_HL]) == -1
 		|| pipe(pipes[READ_CHILD_LH]) == -1 || pipe(pipes[WRITE_CHILD_LH]) == -1
 		|| pipe(pipes[READ_CHILD_LL]) == -1 || pipe(pipes[WRITE_CHILD_LL]) == -1) {
 		ERROR_EXIT("Error when opening pipes");
 	}
-
-	{
-		pid[0] = fork();
-		if (pid[0] < 0) {
+	
+	//create child processes
+	for(int i; i<4;i++){
+		pid[i] = fork();
+		if(pid[i]<0){
 			ERROR_EXIT("Error at forking");
 		}
-
-		else if (pid[0] == 0) {
-			dupNeededPipes(8,pipes,READ_CHILD_HH,WRITE_CHILD_HH);
-
-			if (execlp(argv[0], argv[0], NULL) == -1) {
-				ERROR_EXIT("Error on execlp");
-			}
-		}
-		//End fork1
-
-
-		pid[1] = fork();
-		if (pid[1] < 0) {
-			ERROR_EXIT("Error at forking");
-		}
-		else if (pid[1] == 0) {
-			dupNeededPipes(8,pipes,READ_CHILD_HL,WRITE_CHILD_HL);
-
-			if (execlp(argv[0], argv[0], NULL) == -1) {
-				ERROR_EXIT("Error on execlp");
-			}
-
-		}
-
-		//END FORK 2
-
-		pid[2] = fork();
-		if (pid[2] < 0) {
-			ERROR_EXIT("Error on fork");
-		}
-		else if (pid[2] == 0) { 
-			dupNeededPipes(8,pipes,READ_CHILD_LH,WRITE_CHILD_LH);
-
-			if (execlp(argv[0], argv[0], NULL) == -1) {
-				ERROR_EXIT("Error on execlp");
-			}
-
-		}
-
-		//END FORK 3
-
-		pid[3] = fork();
-		if (pid[3] < 0) {
-			ERROR_EXIT("Error on forking");
-		}
-		else if (pid[3] == 0) { 
-
-			dupNeededPipes(8,pipes,READ_CHILD_LL,WRITE_CHILD_LL);
+		else if (pid[i] == 0) {
+			dupNeededPipes(8,pipes,i*2,i*2+1);
 
 			if (execlp(argv[0], argv[0], NULL) == -1) {
 				ERROR_EXIT("Error on execlp");
 			}
 		}
-		//END FORK 4
 	}
+	
 
 	{
 
