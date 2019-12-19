@@ -39,12 +39,7 @@ static void addXZeros(char * a, int count);
 *@return 0 if it is a hexstring else 1
 */
 static int isHex(char *hexString) {
-	if (strspn(hexString, HEXDIGITS) == strlen(hexString)) {
-		return 0;
-	}
-	else {
-		return 1;
-	}
+	return (strspn(hexString, HEXDIGITS) == strlen(hexString));
 }
 
 /**
@@ -57,7 +52,7 @@ static void readInput(char *firstString, char *secondString) {
 	firstString[strlen(firstString) - 1] = '\0';
 	secondString[strlen(secondString) - 1] = '\0';
 
-	if (isHex(secondString) != 0 || isHex(firstString) != 0) {
+	if (!isHex(secondString) || !isHex(firstString)) {
 		ERROR_EXIT("The input is not a valid HEX-String");
 	}
 	else if (strlen(firstString) != strlen(secondString)) {
