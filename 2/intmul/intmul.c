@@ -16,13 +16,13 @@
 #define READ 0
 
 #define READ_CHILD_HH 0
-#define WRITE_CHILD_HH 1
+#define WRITE_CHILD_HH (READ_CHILD_HH+1)
 #define READ_CHILD_LH 2
-#define WRITE_CHILD_LH 3
+#define WRITE_CHILD_LH (READ_CHILD_LH+1)
 #define READ_CHILD_HL 4
-#define WRITE_CHILD_HL 5
+#define WRITE_CHILD_HL (READ_CHILD_HL+1)
 #define READ_CHILD_LL 6
-#define WRITE_CHILD_LL 7
+#define WRITE_CHILD_LL (READ_CHILD_LL+1)
 
 char * fileName;
 
