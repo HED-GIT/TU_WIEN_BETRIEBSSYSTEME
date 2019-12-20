@@ -74,8 +74,6 @@ int main(int argc, char * argv[]) {
         SUCCESS_EXIT();
     }
 
-
-
 	int pipes[4][2];
 
     if (pipe(pipes[PIPE_1_WRITE]) == -1 || pipe(pipes[PIPE_1_READ]) == -1 || pipe(pipes[PIPE_2_WRITE]) == -1 || pipe(pipes[PIPE_2_READ]) == -1) {
