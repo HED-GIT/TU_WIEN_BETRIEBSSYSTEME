@@ -196,10 +196,17 @@ int main(int argc, char * argv[]) {
     close(pipes[PIPE_O_WRITE][WRITE]);
 
     int state;					//return state of the child process (never checked)
-    waitpid(p1, &state, WEXITED);
+    waitpid(p1, &state,0);
+	if(WEXITSTATUS(state)){
+		ERROR_EXIT("error in child");
+	}
 
-    waitpid(p2, &state, WEXITED);
 
+    waitpid(p2, &state, 0);
+	if(WEXITSTATUS(state)){
+		ERROR_EXIT("error in child");
+	}
+	
     char * oline = NULL;			//read string with o values
     char * eline = NULL;			//read string with e values
     size_t length = 0;				//size of string for getline
