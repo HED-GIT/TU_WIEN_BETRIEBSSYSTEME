@@ -119,11 +119,18 @@ int main(int argc, char * argv[]) {
     close(pipes[PIPE_1_WRITE][WRITE]);
     close(pipes[PIPE_2_WRITE][WRITE]);
 
-    int state;					//return state of the child process (never checked)
-    waitpid(p1, &state, WEXITED);
+    int state = 0;					//return state of the child process (never checked)
+    waitpid(p1, &state, 0);
+	if(WEXITSTATUS(state)){
+		
+		ERROR_EXIT("error in child");
+	}
 
-    waitpid(p2, &state, WEXITED);
-
+    waitpid(p2, &state, 0);	
+	if(WEXITSTATUS(state)){
+		ERROR_EXIT("error in child");
+	}
+	
     size_t length = 0;				//size of string for getline
 
     FILE * file1 = fdopen(pipes[PIPE_1_READ][READ], "r");	//opens pipe as file
