@@ -52,7 +52,7 @@ static void dupNeededPipes(int pipeAmount, int pipes[pipeAmount][2], int neededR
 int main(int argc, char * argv[]) {
     fileName = argv[0];
 	
-	char ** readString = malloc(sizeof(char*)*MAX_AMOUNT_STRINGS);	//free
+	char ** readString = malloc(sizeof(char*)*MAX_AMOUNT_STRINGS);
     int counter = 0;
 
     if (argc != 1) {
@@ -99,8 +99,6 @@ int main(int argc, char * argv[]) {
     close(pipes[PIPE_1_READ][WRITE]);
     close(pipes[PIPE_2_READ][WRITE]);
 
-
-
 	//write to pipes
 	int i = 0;
 	int writen1 = 0;
@@ -108,14 +106,16 @@ int main(int argc, char * argv[]) {
     for (; i < counter/2; i++) {
         write(pipes[PIPE_1_WRITE][WRITE], readString[i], (strlen(readString[i]))); 
 		writen1++;
+		free(readString[i]);
 
 	}
 	for (; i < counter; i++) {
 	    write(pipes[PIPE_2_WRITE][WRITE], readString[i], (strlen(readString[i])));      
 		writen2++;
-
+		free(readString[i]);
 	}
-
+	free(readString);
+	
     close(pipes[PIPE_1_WRITE][WRITE]);
     close(pipes[PIPE_2_WRITE][WRITE]);
 
@@ -155,9 +155,11 @@ int main(int argc, char * argv[]) {
 		
 		if(strcmp(readLines1[first],readLines2[second])<0){
 			fprintf(stdout,"%s\n",readLines1[first]);
+			free(readLines1[first]);
 			first++;
 		} else{
 			fprintf(stdout,"%s\n",readLines2[second]);
+			free(readLines2[second]);
 			second++;			
 		}
 	}
@@ -165,12 +167,16 @@ int main(int argc, char * argv[]) {
 		
 		if(first!=writen1){
 			fprintf(stdout,"%s\n",readLines1[first]);
+			free(readLines1[first]);
 			first++;
 		} else{
 			fprintf(stdout,"%s\n",readLines2[second]);
+			free(readLines2[second]);
 			second++;			
 		}
 	}
+	free(readLines1);
+	free(readLines2);
 	
     SUCCESS_EXIT()
 }
