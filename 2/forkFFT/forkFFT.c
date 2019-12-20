@@ -170,13 +170,13 @@ int main(int argc, char * argv[]) {
     if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
     if (p1 == 0) {
 		dupNeededPipes(4,pipes,PIPE_E_READ,PIPE_E_WRITE);
-        if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp("./forkFFT", argv[0], NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     int p2;					//second child process
     if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
     if (p2 == 0) {
 		dupNeededPipes(4, pipes,PIPE_O_READ,PIPE_O_WRITE);
-        if(execlp("./forkFFT", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp("./forkFFT", argv[0], NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     close(pipes[PIPE_E_WRITE][READ]);
     close(pipes[PIPE_O_WRITE][READ]);

@@ -63,9 +63,9 @@ int main(int argc, char * argv[]) {
     ssize_t nread;	//errorvalue for getline
     size_t len = 0;	//length is irrelivant because line=null
     while ((nread = getline( & line, & len, stdin)) != -1) {
-		readString[counter] = malloc(sizeof(char)*MAXLENGTH);
-		strcpy(readString[counter],line);
+		readString[counter] = line;
         counter++;
+		line=NULL;
     }
 	
 
@@ -86,13 +86,13 @@ int main(int argc, char * argv[]) {
     if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
     if (p1 == 0) {
 		dupNeededPipes(4,pipes,PIPE_1_READ,PIPE_1_WRITE);
-        if(execlp("./forkSort", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp("./forkSort", argv[0], NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     int p2;					//second child process
     if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
     if (p2 == 0) {
 		dupNeededPipes(4, pipes,PIPE_2_READ,PIPE_2_WRITE);
-        if(execlp("./forkSort", "argv[0]", NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp("./forkSort", argv[0], NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     close(pipes[PIPE_1_WRITE][READ]);
     close(pipes[PIPE_2_WRITE][READ]);
@@ -132,22 +132,18 @@ int main(int argc, char * argv[]) {
 	char ** readLines1 = malloc(sizeof(char*)*writen1);
 	//read from first
     for (int k = 0; k < writen1; k++) {
-		char * line;
+		char * line = NULL;
         getline( & line, & length, file1);
-		readLines1[k] = malloc(sizeof(char)*MAXLENGTH);
-
-		strcpy(readLines1[k],line);
+		readLines1[k] = line;
 		readLines1[k][strlen(readLines1[k])-1]='\0';
 		
     }
 	//read from second
 	char ** readLines2 = malloc(sizeof(char*)*writen2);
 	for (int k = 0; k < writen2; k++) {
-		char * line;
+		char * line = NULL;
         getline( & line, & length, file2);				
-		readLines2[k] = malloc(sizeof(char)*MAXLENGTH);
-
-		strcpy(readLines2[k],line);
+		readLines2[k] = line;
 		readLines2[k][strlen(readLines2[k])-1]='\0';
     }
     
