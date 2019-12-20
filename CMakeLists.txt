@@ -42,6 +42,11 @@ add_executable(forkFFT 2/forkFFT/forkFFT.c)
 target_compile_options(forkFFT PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 target_link_libraries(forkFFT m)
 
+#forkSort c
+
+add_executable(forkSort 2/forkSort/forkSort.c)
+target_compile_options(forkSort PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
 #fb_arc_set c
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/fb_arc_set)
