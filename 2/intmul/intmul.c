@@ -251,10 +251,6 @@ int main(int argc, char *argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		close(pipes[WRITE_CHILD_HH][WRITE]);
-		close(pipes[WRITE_CHILD_HL][WRITE]);
-		close(pipes[WRITE_CHILD_LH][WRITE]);
-		close(pipes[WRITE_CHILD_LL][WRITE]);
 	}
 
 	// Read string from child and close reading end.
