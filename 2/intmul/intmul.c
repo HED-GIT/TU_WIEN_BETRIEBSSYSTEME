@@ -164,10 +164,10 @@ int main(int argc, char *argv[]) {
 		SUCCESS_EXIT();
 	}
 
-	char Al[length + 1];
-	char Bh[length + 1];
-	char Bl[length + 1];
-	char Ah[length + 1];
+	char Al[length + 2];
+	char Bh[length + 2];
+	char Bl[length + 2];
+	char Ah[length + 2];
 
 	int i = 0; 
 	for (; i < length; i++) {
@@ -266,7 +266,6 @@ int main(int argc, char *argv[]) {
 
 	{
 		int rv;
-
 		rv = read(pipes[READ_CHILD_HH][READ], returnChildHH, length *2+1);
 		returnChildHH[rv-1] = '\0';
 		close(pipes[READ_CHILD_HH][READ]);
