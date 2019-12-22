@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 
 	if (strlen(firstString) == 1) {
 		multHexChar(firstString, secondString);
-		fprintf(stdout, "%s", firstString);
+		fprintf(stdout, "%s\n", firstString);
 		SUCCESS_EXIT();
 	}
 
@@ -169,21 +169,22 @@ int main(int argc, char *argv[]) {
 	char Bl[length + 1];
 	char Ah[length + 1];
 
-
-	for (int i = 0; i < length; i++) {
+	int i = 0; 
+	for (; i < length; i++) {
 		Ah[i] = firstString[i];
 		Bh[i] = secondString[i];
 		Al[i] = firstString[length + i];
 		Bl[i] = secondString[length + i];
-		Ah[i + 1] = '\n';
-		Bh[i + 1] = '\n';
-		Al[i + 1] = '\n';
-		Bl[i + 1] = '\n';
-		Ah[i + 2] = '\0';
-		Bh[i + 2] = '\0';
-		Al[i + 2] = '\0';
-		Bl[i + 2] = '\0';
 	}
+	
+	Ah[i] = '\n';
+	Bh[i] = '\n';
+	Al[i] = '\n';
+	Bl[i] = '\n';
+	Ah[i + 1] = '\0';
+	Bh[i + 1] = '\0';
+	Al[i + 1] = '\0';
+	Bl[i + 1] = '\0';
 	
 	int pipes[8][2];
 
@@ -217,9 +218,13 @@ int main(int argc, char *argv[]) {
 
 		// close all reading ends of writing pipe
 		close(pipes[WRITE_CHILD_HH][READ]);
+		close(pipes[READ_CHILD_HH][WRITE]);
 		close(pipes[WRITE_CHILD_HL][READ]);
+		close(pipes[READ_CHILD_HL][WRITE]);
 		close(pipes[WRITE_CHILD_LH][READ]);
+		close(pipes[READ_CHILD_LH][WRITE]);
 		close(pipes[WRITE_CHILD_LL][READ]);
+		close(pipes[READ_CHILD_LL][WRITE]);
 
 		//writing
 
@@ -262,20 +267,20 @@ int main(int argc, char *argv[]) {
 	{
 		int rv;
 
-		rv = read(pipes[READ_CHILD_HH][READ], returnChildHH, length *2);
-		returnChildHH[rv] = '\0';
+		rv = read(pipes[READ_CHILD_HH][READ], returnChildHH, length *2+1);
+		returnChildHH[rv-1] = '\0';
 		close(pipes[READ_CHILD_HH][READ]);
 
-		rv = read(pipes[READ_CHILD_HL][READ], returnChildHL, length *2);
-		returnChildHL[rv] = '\0';
+		rv = read(pipes[READ_CHILD_HL][READ], returnChildHL, length *2+1);
+		returnChildHL[rv-1] = '\0';
 		close(pipes[READ_CHILD_HL][READ]);
 
-		rv = read(pipes[READ_CHILD_LH][READ], returnChildLH, length *2);
-		returnChildLH[rv] = '\0';
+		rv = read(pipes[READ_CHILD_LH][READ], returnChildLH, length *2+1);
+		returnChildLH[rv-1] = '\0';
 		close(pipes[READ_CHILD_LH][READ]);
 
-		rv = read(pipes[READ_CHILD_LL][READ], returnChildLL, length *2);
-		returnChildLL[rv] = '\0';
+		rv = read(pipes[READ_CHILD_LL][READ], returnChildLL, length *2+1);
+		returnChildLL[rv-1] = '\0';
 		close(pipes[READ_CHILD_LL][READ]);
 	}
 
@@ -290,11 +295,6 @@ int main(int argc, char *argv[]) {
 	addHex(returnChildHH, returnChildLH);
 	addHex(returnChildHH, returnChildLL);
 
-
-
-	for (int i = 0; i < strlen(returnChildHH); i++) {
-		fprintf(stdout, "%c", returnChildHH[i]);
-	}
-	fprintf(stdout, "\n");
+	fprintf(stdout, "%s\n", returnChildHH);
 	SUCCESS_EXIT();
 }
