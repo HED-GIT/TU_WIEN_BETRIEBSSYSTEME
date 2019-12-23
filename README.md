@@ -1,13 +1,9 @@
 # TU_WIEN_BETRIEBSSYSTEME
 
-A hand full of the exercises given,
+A hand full of the exercises given in OSUE
 
-most of them where never graded,
+most of them where never graded so i can not say if they have any hidden flaws
 
-they should work but they were made to various times so some may not be well written
+but they all work for the given testcases
 
-and some are old badly written (and sometimes faulty) ones that were changed to work
-
-most/all are not conform to their annoying guidlines
-
-many where created before i created the repo and i was to lazy to test if they work
+while i do not care if you just copy them there is still the chance that multiple people copy from this repository, therefor you should at least make some changes
