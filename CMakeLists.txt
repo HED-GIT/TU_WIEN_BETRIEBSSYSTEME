@@ -24,6 +24,11 @@ target_compile_options(mycompress PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOU
 add_executable(mydiff 1a/mydiff/mydiff.c)
 target_compile_options(mydiff PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 
+#myexpand c
+
+add_executable(myexpand 1a/myexpand/myexpand.c)
+target_compile_options(myexpand PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
 #html c
 add_executable(server 1b/html/requestHandling/sharedTools.c 1b/html/requestHandling/sharedTools.h 1b/html/server/server.c)
 target_compile_options(server PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
