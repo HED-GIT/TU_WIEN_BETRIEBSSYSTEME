@@ -55,21 +55,43 @@ target_compile_options(forkSort PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURC
 #fb_arc_set c
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/fb_arc_set)
-add_executable(generator 3/fb_arc_set/generator.c 3/fb_arc_set/circularBuffer.c)
-target_link_libraries(generator pthread rt)
-target_compile_options(generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+add_executable(fb_generator 3/fb_arc_set/generator.c 3/fb_arc_set/circularBuffer.c)
+target_link_libraries(fb_generator pthread rt)
+target_compile_options(fb_generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 
-add_executable(supervisor 3/fb_arc_set/supervisor.c 3/fb_arc_set/circularBuffer.c)
-target_link_libraries(supervisor pthread rt)
-target_compile_options(supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+add_executable(fb_supervisor 3/fb_arc_set/supervisor.c 3/fb_arc_set/circularBuffer.c)
+target_link_libraries(fb_supervisor pthread rt)
+target_compile_options(fb_supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 
 #3color c
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/3color)
-add_executable(generator_1 3/3color/generator.c 3/3color/circularBuffer.c)
-target_link_libraries(generator_1 pthread rt)
-target_compile_options(generator_1 PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+add_executable(3color_generator 3/3color/generator.c 3/3color/circularBuffer.c)
+target_link_libraries(3color_generator pthread rt)
+target_compile_options(3color_generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
 
-add_executable(supervisor_1 3/3color/supervisor.c 3/3color/circularBuffer.c)
-target_link_libraries(supervisor_1 pthread rt)
-target_compile_options(supervisor_1 PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+add_executable(3color_supervisor 3/3color/supervisor.c 3/3color/circularBuffer.c)
+target_link_libraries(3color_supervisor pthread rt)
+target_compile_options(3color_supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+#newfb_arc_set c
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/fb_arc_set_new)
+add_executable(fb_new_generator 3NEW/fb_arc_set/generator.c 3NEW/fb_arc_set/circularBuffer.c)
+target_link_libraries(fb_new_generator pthread rt)
+target_compile_options(fb_new_generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+add_executable(fb_new_supervisor 3NEW/fb_arc_set/supervisor.c 3NEW/fb_arc_set/circularBuffer.c)
+target_link_libraries(fb_new_supervisor pthread rt)
+target_compile_options(fb_new_supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+#new3color c
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/3color_new)
+add_executable(new_3color_generator 3NEW/3color/generator.c 3NEW/3color/circularBuffer.c)
+target_link_libraries(new_3color_generator pthread rt)
+target_compile_options(new_3color_generator PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
+
+add_executable(new_3color_supervisor 3NEW/3color/supervisor.c 3NEW/3color/circularBuffer.c)
+target_link_libraries(new_3color_supervisor pthread rt)
+target_compile_options(new_3color_supervisor PUBLIC -std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)
