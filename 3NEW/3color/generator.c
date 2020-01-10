@@ -196,8 +196,9 @@ int main(int argc,char **argv ) {
 	max++;	
 	
 	pthread_t tid;
+	pthread_t killtid = pthread_self();
 	
-	pthread_create(&tid,NULL,terminator,(void *)&tid);
+	pthread_create(&tid,NULL,terminator,(void *)&killtid);
 	handler(&max,&argc,allEdges);
 	
 	clean_buffer();
