@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include <unistd.h> 
 #include <time.h> 
+#include <errno.h>
 
 
 char * name;
@@ -61,17 +62,9 @@ typedef struct buffer{
 buffer * buf;
 
 
-/**
-*@brief handles writing operation to the circularbuffer
-*@param value that should be saved to the buffer
-*/
-void circ_buf_write(returnValue val);
+int circ_buf_write(returnValue * val);
 
-/**
-*@brief handles reading operation to the circularbuffer
-*@return value that was read from the circularbuffer
-*/
-returnValue circ_buf_read();
+int circ_buf_read(returnValue * value);
 
 void setup_buffer();
 
@@ -81,22 +74,10 @@ void load_buffer();
 
 void clean_loaded_buffer();
 
-void increment_state();
+int increment_state();
 
-void decrement_state();
-
-void set_state(int i);
+int set_state(int i);
 
 int get_state();
 
-/**
-*@brief prints a default error message to the console and terminates the program
-*@param extra error message that should be printed out
-*/
-void printError(char * text);
-
-/**
-*@brief prints out the edges of an edge array
-*@param i_edge: edge array to be printed, length: amount of edges which should be printed out
-*/
 void printEdge(const edge * i_edge, int length);

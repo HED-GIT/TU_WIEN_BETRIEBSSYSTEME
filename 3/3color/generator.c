@@ -1,4 +1,3 @@
-#include <time.h>
 #include <stdlib.h>
 #include <stdio.h> 
 #include <sys/mman.h>
@@ -11,22 +10,20 @@
 #include "circularBuffer.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
-#define DEBUG
+//#define DEBUG
 
 static returnValue calculateOneSolution(const int *argc, edge *edges ,const int *maxNode);
 static void readInput(const int *argc,char** argv,edge *allEdges);
 static void handler(const int *max, const int *argc, edge *allEdges);
 
-/*
-* @brief once called it calculates new solutions till stopped by signal
-* @param max maximal value of node
-* @param argc input count
-* @param allEdges the graph used for the calculation
-*/
+
 static void handler(const int *max, const int *argc, edge * allEdges) {
 	returnValue my_solution;
-	while (get_state() > 0) {
+	
+	int state;
+	while ((state = get_state()) > 0) {
 	
 		
 		my_solution = calculateOneSolution(argc, allEdges, max);
@@ -35,7 +32,9 @@ static void handler(const int *max, const int *argc, edge * allEdges) {
 #ifdef DEBUG
 			printEdge(my_solution.returnEdges, my_solution.amount);
 #endif
-			circ_buf_write(my_solution);
+			if(circ_buf_write(&my_solution)!=0){
+				ERROR_EXIT("error writing to shared memory");
+			}
 		}
 		else {
 #ifdef DEBUG
@@ -43,16 +42,12 @@ static void handler(const int *max, const int *argc, edge * allEdges) {
 #endif
 		}
 	}
-	clean_loaded_buffer();
-	exit(EXIT_SUCCESS);
+	if(state != 0){
+		ERROR_EXIT("couldn't fetch program state");
+	}
 }
 
-/*
-* @brief reads the graph from program arguments
-* @param argc: argument count
-* @param argv: arguments
-* @param allEdges: pointer were the graph will be saved to
-*/
+
 static void readInput(const int *argc,char *argv[],edge * allEdges) {
 	int startNode = 0;
 	int endNode = 0;
@@ -63,19 +58,14 @@ static void readInput(const int *argc,char *argv[],edge * allEdges) {
 			exit(EXIT_FAILURE);
 		}
 		edge edge;
-		edge.start = startNode;
-		edge.end = endNode;
+		edge.start = MIN(startNode,endNode);
+		edge.end = MAX(startNode,endNode);
 
 		allEdges[i - 1] = edge;
 	}
 }
 
-/*
-* @brief calculates a solution to 3color
-* @param argc: argument count
-* @param edges: graph to use
-* @param maxNode: amount of different nodes
-*/
+
 static returnValue calculateOneSolution(const int *argc, edge *edges, const int *maxNode) {
 	returnValue newSolution;
 
@@ -104,9 +94,7 @@ static returnValue calculateOneSolution(const int *argc, edge *edges, const int 
 }
 
 
-/*
-* @brief entrypoint, handles creating of shared ressources
-*/
+
 int main(int argc,char *argv[] ) {
     name = argv[0];
 
@@ -117,10 +105,12 @@ int main(int argc,char *argv[] ) {
 
     load_buffer();
 
-	increment_state();
+	if(increment_state()!=0){
+		ERROR_EXIT("couldn't increment system state");
+	}
 	srand(time(0) + get_state() * 1000);
 
-	edge allEdges[MAXGRAPHSIZE];
+	edge * allEdges = malloc(sizeof(edge)*(argc-1));//free
 	readInput(&argc, argv, allEdges);
 	int max = 0;
 	for (int i = 0; i < argc; i++) {
@@ -129,9 +119,11 @@ int main(int argc,char *argv[] ) {
 	}
 	max++;
 	handler(&max,&argc,allEdges);
-	decrement_state();
-	sem_post(used_sem);
+	
+	free(allEdges);
+	
 	sem_post(free_sem);
+	
 	clean_loaded_buffer();
-	exit(EXIT_SUCCESS);
+	SUCCESS_EXIT();
 }

@@ -13,23 +13,16 @@
 
 #define USAGE() {fprintf(stderr,"./supervisor no arguments allowed\n"); exit(EXIT_FAILURE);}
 
+int terminate = 0;
+
 static void signalhandler(int sig_num);
 
 
-
-/*
-* @brief signal handler for terminating the programm
-*/
 static void signalhandler(int sig_num) {
-	set_state(0);
-    clean_buffer();
-	exit(EXIT_SUCCESS);
+	terminate++;
 }
 
-/*
-* @brief entry point,
-* reads from buffer and prints values
-*/
+
 int main( int argc, char *argv[] ) {
     name = argv[0];
     signal(SIGINT, signalhandler);
@@ -47,10 +40,14 @@ int main( int argc, char *argv[] ) {
 
     fprintf(stdout, "waiting for solutions from ./generator\n");
 
-	int gen = 0;
-    while(1){
-		gen=get_state()-1;
-        newSolution=circ_buf_read();
+    while(!terminate){
+		
+		int error_value;
+        if((error_value = circ_buf_read(&newSolution))!=0){
+			ERROR_EXIT("error while reading buffer");
+		}
+		
+		
         if(newSolution.amount == 0){
 		fprintf(stdout, "The graph is 3-colorable \n");
            	break;
@@ -61,9 +58,10 @@ int main( int argc, char *argv[] ) {
 			printEdge(newSolution.returnEdges,newSolution.amount);
         }
 	}
-  clean_buffer();
-  set_state(0);
-  while(gen!=get_state()*(-1)){circ_buf_read();  sleep(1);}
-  clean_buffer();
-  exit(EXIT_SUCCESS);
+	
+	set_state(0);
+	sem_post(free_sem);
+	
+	clean_buffer();
+	SUCCESS_EXIT();
 }
