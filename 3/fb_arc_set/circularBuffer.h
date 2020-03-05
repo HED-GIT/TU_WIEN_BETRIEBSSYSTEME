@@ -7,8 +7,13 @@
 #include <semaphore.h>
 #include <unistd.h> 
 #include <time.h> 
+#include <errno.h> 
 
-#define SHMNAME "/11775789SHM"
+
+char * name;
+
+#define SHMNAME "/11775789SHM2"
+#define STATENAME "/11775789state"
 #define MAXGRAPHSIZE 100
 
 #define SEM_1 "/11775789sem_1"
@@ -18,7 +23,9 @@
 
 #define MAXRETURN 8
 
-char * name;
+#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); exit(EXIT_FAILURE); }
+#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
+#define ERROR_MSG(...) {fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); }
 
 sem_t * free_sem;
 sem_t * used_sem;
@@ -55,17 +62,9 @@ typedef struct buffer{
 buffer * buf;
 
 
-/**
-*@brief handles writing operation to the circularbuffer
-*@param value that should be saved to the buffer
-*/
-void circ_buf_write(returnValue val);
+int circ_buf_write(returnValue * val);
 
-/**
-*@brief handles reading operation to the circularbuffer
-*@return value that was read from the circularbuffer
-*/
-returnValue circ_buf_read();
+int circ_buf_read(returnValue * value);
 
 void setup_buffer();
 
@@ -75,19 +74,11 @@ void load_buffer();
 
 void clean_loaded_buffer();
 
-void increment_state();
+int increment_state();
 
-void decrement_state();
-
-void set_state(int i);
+int set_state(int i);
 
 int get_state();
-
-/**
-*@brief prints a default error message to the console and terminates the program
-*@param extra error message that should be printed out
-*/
-void printError(char * text);
 
 /**
 *@brief prints out the edges of an edge array

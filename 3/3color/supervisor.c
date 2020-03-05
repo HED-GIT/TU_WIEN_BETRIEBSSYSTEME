@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <limits.h>
 #include "circularBuffer.h"
 
 
@@ -32,18 +33,21 @@ int main( int argc, char *argv[] ) {
 		USAGE();
     }
 
-	returnValue bestSolution = {.amount=MAXGRAPHSIZE};
+	returnValue bestSolution = {.amount=INT_MAX};
 
     setup_buffer();
 
-	returnValue newSolution = {.amount=MAXGRAPHSIZE};
+	returnValue newSolution = {.amount=INT_MAX};
 
     fprintf(stdout, "waiting for solutions from ./generator\n");
 
     while(!terminate){
 		
 		int error_value;
-        if((error_value = circ_buf_read(&newSolution))!=0){
+		if((error_value = circ_buf_read(&newSolution))!=0){
+			if(error_value==1){
+				break;
+			}
 			ERROR_EXIT("error while reading buffer");
 		}
 		

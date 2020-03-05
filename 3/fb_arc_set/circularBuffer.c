@@ -1,57 +1,54 @@
 #include "circularBuffer.h"
 
 
-/**
-*@brief handles writing operation to the circularbuffer
-*@param value that should be saved to the buffer
-*/
+int circ_buf_write(returnValue * val) {
 
-void circ_buf_write(returnValue val) {
-
-
-	if (sem_wait(free_sem) != 0) {
-		printError("error at sem_wait (writing)");
+	while (sem_wait(free_sem) != 0) {
+		if(errno == EINTR)
+			continue;
+		else
+			return -1;
 	}
 	
-	sem_wait(write_sem);
-	buf->values[buf->writePosition] = val;
+	while (sem_wait(write_sem) != 0) {
+		if(errno == EINTR)
+			continue;
+		else
+			return -1;
+	}
+	
+	
+	buf->values[buf->writePosition] = *val;
 	buf->writePosition = (buf->writePosition + 1) % BUFFERLENGTH;
-	sem_post(write_sem);
+	
+	if(sem_post(write_sem) != 0){
+		return -1;
+	}
 	
 	if (sem_post(used_sem) != 0) {
-		printError("error at sem_post (writing)");
+		return -1;
 	}
+	return 0;
 }
 
 
-/**
-*@brief handles reading operation to the circularbuffer
-*@return value that was read from the circularbuffer
-*/
-returnValue circ_buf_read() {
-  if (sem_wait(used_sem) != 0) {
-    printError("error at sem_wait (reading)");
-  }
+int circ_buf_read(returnValue * val) {
+	
+	if (sem_wait(used_sem) != 0) {
+		if(errno == EINTR)
+			return 1;
+		else
+			return -1;
+	}
   
-  returnValue val = buf->values[buf->readPosition];
+  *val = buf->values[buf->readPosition];
   buf->readPosition = (buf->readPosition + 1) % BUFFERLENGTH;
   
   if (sem_post(free_sem) != 0) {
-    printError("error at sem_post (reading)");
+    return -1;
   }
-  return val;
+  return 0;
 }
-
-/**
-*@brief prints a default error message to the console and terminates the program
-*@param extra error message that should be printed out
-*/
-void printError(char * text) {
-  fprintf(stderr, "Error occuried in %s\n", name);
-  fprintf(stderr, "Message: %s\n", text);
-  exit(EXIT_FAILURE);
-}
-
 /**
 *@brief prints out the edges of an edge array
 *@param i_edge: edge array to be printed, length: amount of edges which should be printed out
@@ -68,20 +65,20 @@ void load_buffer(){
   shmfd = shm_open(SHMNAME, O_RDWR | O_CREAT, 0600);
   if (shmfd == -1) {
     clean_loaded_buffer();
-    printError("shm_open failed");
+    ERROR_EXIT("shm_open failed");
   }
 
   buf = mmap(NULL, sizeof( * buf), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd, 0);
   if (buf == MAP_FAILED) {
     clean_loaded_buffer();
-    printError("mmap failed");
+    ERROR_EXIT("mmap failed");
   }
   free_sem = sem_open(SEM_1, BUFFERLENGTH);
   used_sem = sem_open(SEM_2, 0);
   write_sem = sem_open(SEM_W, 1);
   if (free_sem == SEM_FAILED || used_sem == SEM_FAILED || write_sem == SEM_FAILED) {   
     clean_loaded_buffer();
-    printError("sem_open failed");
+    ERROR_EXIT("sem_open failed");
   }
 }
 
@@ -98,18 +95,18 @@ void setup_buffer(){
   shmfd = shm_open(SHMNAME, O_RDWR | O_CREAT, 0600);
   if (shmfd == -1) {
     clean_buffer();
-    printError("error at opening shared memory");
+    ERROR_EXIT("error at opening shared memory");
   }
 
   if (ftruncate(shmfd, sizeof( * buf)) < 0) {
     clean_buffer();
-    printError("error  at ftruncate");
+    ERROR_EXIT("error  at ftruncate");
 
   }
   buf = mmap(NULL, sizeof( * buf), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd, 0);
   if (buf == MAP_FAILED) {
     clean_buffer();
-    printError("mmap failed");
+    ERROR_EXIT("mmap failed");
   }
 
   free_sem = sem_open(SEM_1, O_CREAT | O_EXCL, 0600, BUFFERLENGTH);
@@ -118,7 +115,7 @@ void setup_buffer(){
 
   if (free_sem == SEM_FAILED || used_sem == SEM_FAILED) {
     clean_buffer();
-    printError("sem_open failed");
+    ERROR_EXIT("sem_open failed");
   }
   set_state(0);
 }
@@ -136,27 +133,45 @@ void clean_buffer(){
   fprintf(stdout, "close\n");
 }
 
-void increment_state(){
-	sem_wait(write_sem); 
+int increment_state(){
+	while (sem_wait(write_sem) != 0) {
+		if(errno == EINTR)
+			continue;
+		else
+			return -1;
+	}
 	buf->state++;
-	sem_post(write_sem); 
-}
-void decrement_state(){
-	sem_wait(write_sem); 
-	buf->state--;
-	sem_post(write_sem); 
+	if (sem_post(write_sem) != 0) {
+		return -1;
+	}
+	return 0;
 }
 
-void set_state(int i){
-	sem_wait(write_sem); 
+int set_state(int i){
+	while (sem_wait(write_sem) != 0) {
+		if(errno == EINTR)
+			continue;
+		else
+			return -1;
+	}
 	buf->state=i;
-	sem_post(write_sem); 
+	if (sem_post(write_sem) != 0) {
+		return -1;
+	}
+	return 0;
 }
 
 int get_state(){
 	int i;
-	sem_wait(write_sem); 
+	while (sem_wait(write_sem) != 0) {
+		if(errno == EINTR)
+			continue;
+		else
+			return -1;
+	}
 	i=buf->state;
-	sem_post(write_sem); 
+	if (sem_post(write_sem) != 0) {
+		return -1;
+	}
 	return i;
 }

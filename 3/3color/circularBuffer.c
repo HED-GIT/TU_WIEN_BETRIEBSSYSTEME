@@ -32,9 +32,9 @@ int circ_buf_write(returnValue * val) {
 
 int circ_buf_read(returnValue * val) {
 	
-	while (sem_wait(used_sem) != 0) {
+	if (sem_wait(used_sem) != 0) {
 		if(errno == EINTR)
-			continue;
+			return 1;
 		else
 			return -1;
 	}

@@ -1,16 +1,16 @@
 #include <limits.h>
-#include <signal.h> 
+#include <signal.h>
 
 #include "circularBuffer.h"
+
+int terminate = 0;
 
 /**
 *@brief get called on SIGINT and SIGTERM signals
 *@detail starts the cleanup terminates the programm and the ./generator
 */
 void signalhandler(int sig_num) {
-  set_state(0);
-  clean_buffer();
-  exit(EXIT_SUCCESS);
+  terminate ++;
 }
 
 /**
@@ -23,30 +23,40 @@ int main(int argc, char * argv[]) {
   signal(SIGTERM, signalhandler);
   name = argv[0];
   if (argc > 1) {
-    printError("no arguments allowed");
+    ERROR_EXIT("no arguments allowed");
   }
 
   setup_buffer();
 
-  int min = INT_MAX;
+  returnValue newSolution = {.amount=INT_MAX};
+  returnValue bestSolution = {.amount=INT_MAX};
+  
   fprintf(stdout, "please start ./generator\n");
-  int gen = 0;
-  while (1) {
-    gen=get_state()-1;
-    returnValue read = circ_buf_read();
-    if (read.amount == 0) {
+  while (!terminate) {
+
+	int error_value;
+	if((error_value = circ_buf_read(&newSolution))!=0){
+		if(error_value==1){
+				break;
+			}
+		ERROR_EXIT("error while reading buffer");
+	}
+	
+    if (newSolution.amount == 0) {
       fprintf(stdout, "This graph is already acyclic.\n");
       break;
     }
-    if (min > read.amount) {
-      printEdge(read.returnEdges, read.amount);
-      min = read.amount;
+	
+	if(newSolution.amount < bestSolution.amount){
+        bestSolution = newSolution;
+		printEdge(newSolution.returnEdges,newSolution.amount);
     }
 
   }
-  //gen=0;
+
   set_state(0);
-  while(gen!=get_state()*(-1)){circ_buf_read();  sleep(1);}
+  sem_post(free_sem);
+
   clean_buffer();
   exit(EXIT_SUCCESS);
 

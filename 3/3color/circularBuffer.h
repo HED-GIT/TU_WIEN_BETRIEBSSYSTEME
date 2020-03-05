@@ -9,7 +9,6 @@
 #include <time.h> 
 #include <errno.h>
 
-
 char * name;
 
 #define SHMNAME "/11775789SHM2"

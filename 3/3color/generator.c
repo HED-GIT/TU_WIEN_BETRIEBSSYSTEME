@@ -38,7 +38,7 @@ static void handler(const int *max, const int *argc, edge * allEdges) {
 		}
 		else {
 #ifdef DEBUG
-			fprintf(stdout, "Solution too Big: Solution with %d edges found\n", my_solution.amount);
+			fprintf(stdout, "Solution too Big\n");
 #endif
 		}
 	}
@@ -100,7 +100,7 @@ int main(int argc,char *argv[] ) {
 
     if (1 == argc) {
        ERROR_MSG("no graph given");
-        exit(EXIT_FAILURE);
+       exit(EXIT_FAILURE);
     }
 
     load_buffer();
@@ -110,7 +110,7 @@ int main(int argc,char *argv[] ) {
 	}
 	srand(time(0) + get_state() * 1000);
 
-	edge * allEdges = malloc(sizeof(edge)*(argc-1));//free
+	edge * allEdges = malloc(sizeof(edge)*(argc-1));
 	readInput(&argc, argv, allEdges);
 	int max = 0;
 	for (int i = 0; i < argc; i++) {
