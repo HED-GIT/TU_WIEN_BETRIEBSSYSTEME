@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <ctype.h>
 
-#include "../requestHandling/sharedTools.h"
+#include "sharedTools.h"
 
 
 #define USAGE() {fprintf(stderr,"USAGE:\t./client [-p PORT] [ -o FILE | -d DIR ] URL\n"); exit(EXIT_FAILURE);}

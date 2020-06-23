@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <time.h>
 
-#include "../requestHandling/sharedTools.h"
+#include "sharedTools.h"
 
 #define USAGE() {fprintf(stderr,"USAGE:\t./server [-p PORT] [-i INDEX] DOC_ROOT\n");exit(EXIT_FAILURE);}
 
