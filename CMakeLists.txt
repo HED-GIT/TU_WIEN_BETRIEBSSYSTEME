@@ -1,3 +1,5 @@
+# ignore this file, it exists so that i can build all programs from one file instead of using a different make for every program
+
 cmake_minimum_required(VERSION 3.10.2)
 
 project(projects LANGUAGES C CXX)

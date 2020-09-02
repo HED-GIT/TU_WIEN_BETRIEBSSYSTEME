@@ -6,21 +6,52 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAXLENGTH 10000
+// macro used to print usage
+// do while is not strictly needed but prevents errors when using the macro in some specific situations (but not in this program)
+#define USAGE()																	\
+	do{																			\
+		fprintf(stdout,"USAGE: %s [-s] [-i] [-o outfile] [file...]", name);		\
+		exit(EXIT_FAILURE);														\
+	} while(0)
 
-typedef struct{
-	int s;
-	int i;
-	int o;
-}Flags;
 
-void toLower(char * word){
-	for(; *word!='\0';++word){
+// macro used to print errors, program still continues on
+// the ... let's you give arguments to the macro which will automaticly be written at the position of __VA_ARGS__
+#define ERROR_MSG(...)											\
+	do{ 														\
+		fprintf(stderr, "%s ERROR:\t", name); 					\
+		fprintf(stderr, __VA_ARGS__); 							\
+		fprintf(stderr, "\n");									\
+	} while(0)
+
+
+// macro used to exit the program and automaticly print an error message
+#define ERROR_EXIT(...)											\
+	do{ 														\
+		ERROR_MSG(__VA_ARGS__);									\
+		exit(EXIT_FAILURE); 									\
+	} while(0)
+
+typedef struct Settings{		// struct that holds all settings of the program
+	unsigned int s : 1;			// the :1 makes it a bit-field, it only tells the compiler that at most one bit is used
+	unsigned int i : 1;			// it can make optimization based on that knowledge
+	FILE * output;				// gcc should also throw a warning if you try to assign a value greater then 1 to a
+}Settings;
+
+char * name = "ispalindrom";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+								// for example it could be set wrong when the program is executed using exec (man exec)
+								// but that also means that it doesn't change when you rename the program
+								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
+
+// converts the word to a lowercase version of itself
+void string_to_lower(char * word){
+	for(; *word!='\0'; word++){
 		*word = tolower(*word);
 	}
 }
 
-void removeSpace(char * word){
+// remove spaces from a word
+void remove_space(char * word){
 	for(char* reader = word; *reader != '\0'; ++reader){
 		if(*reader!=' '){
 			*word = *reader;
@@ -30,7 +61,8 @@ void removeSpace(char * word){
 	*word = '\0';
 }
 
-int ispalindrom(char* word){	
+// checks if the word is a palindrom
+int is_palindrom(char* word){	
 	char* last = word+strlen(word)-1;
 	while(last >= word){
 		if(*last != *word)
@@ -40,80 +72,97 @@ int ispalindrom(char* word){
 		++word;
 	}
 	return 1;
-	
 }
 
-void stringHandler(char* word, FILE * out, Flags * flags){
-	char * checkWord = malloc(sizeof(char)*MAXLENGTH);
-	strcpy(checkWord,word);
+// handles one individuel line
+void string_handler(const char* word, Settings * set){
+	char * checkWord = strdup(word);	// copy string so that the original string can be printed
+
+	if(checkWord == NULL){
+		ERROR_EXIT("error allocating memory");
+	}
 	
-	if(flags->s)
-		removeSpace(checkWord);
-	if(flags->i)
-		toLower(checkWord);
+	if(set->s)
+		remove_space(checkWord);
+	if(set->i)
+		string_to_lower(checkWord);
 	
 
-	if(ispalindrom(checkWord)){
-		fprintf(out,"%s is a palindrom\n",word);
-	}
-	else{
-		fprintf(out,"%s is not a palindrom\n",word);
-	}
+	if(is_palindrom(checkWord))
+		fprintf(set->output, "%s is a palindrom\n", word);
+	else
+		fprintf(set->output, "%s is not a palindrom\n", word);
+		
 	free(checkWord);
-
-
 }
 
-void handleFile(FILE * input, FILE * output, Flags * flags){
-	char read[MAXLENGTH];
-	while(fgets(read,sizeof(read),input)!=NULL){
-		if(read[strlen(read)-1]=='\n'){
-
-			read[strlen(read)-1]='\0';
+// reads file line for line and checks for palindrom
+void handle_file(FILE * input, Settings * set){
+	
+	char * line = NULL;
+	size_t size = 0;
+	while(getline(&line, &size, input) != -1){
+		if(line[ strlen(line) - 1] == '\n'){		//strip \n in case it got read by getline
+			line[ strlen(line) - 1] = '\0';
 		}
-		stringHandler(read,output,flags);
+		string_handler(line, set);
 	}
 
+	free(line);
+	if(!feof(input)){
+		ERROR_MSG("Some error happened while reading a file");	//print message and continue
+	}
+}
+
+
+// reads commandline arguments
+// returns position of first input-file
+int handle_arguments(Settings * set, int argc, char ** argv){
+	int opt;
+	while((opt=getopt(argc, argv, "sio:"))!=-1){
+		switch(opt){
+			case 's':
+				set->s = 1;
+				break;
+			case 'i':
+				set->i = 1;
+				break;
+			case 'o':
+				if(set->output != stdout){
+					fclose(set->output);
+				}
+				set->output = fopen(optarg, "w");
+				if(set->output == NULL){
+					ERROR_EXIT("couldn't open output-file %s", optarg);
+				}
+				break;
+			default:
+				USAGE();
+		}
+	}
+	return optind;
 }
 
 int main(int argc,char ** argv){
-	FILE * outFile = stdout;
 		
-	Flags flags={0,0,0};
+	Settings set = {0,0,stdout};
 	
-	int opt;
-	
-	while((opt=getopt(argc,argv,"sio:"))!=-1){
-		switch(opt){
-			case 's':
-				flags.s++;
-				break;
-			case 'i':
-				flags.i++;
-				break;
-			case 'o':
-				flags.o++;
-				outFile = fopen(optarg,"w");
-				break;
-			default:
-				exit(EXIT_FAILURE);
-		}
-	}
-	
-	int i=flags.s+flags.i+flags.o*2+1;
-	if(i>=argc){
-		handleFile(stdin,outFile,&flags);
+	int i = handle_arguments(&set, argc, argv);
+
+	if(i >= argc){												//no additional arguments, read from stdin
+		handle_file(stdin, &set);
 	}
 	else{
 		for(;i<argc;i++){
 
-			FILE * input = fopen(argv[i],"r");
-
-			handleFile(input,outFile,&flags);
-			//fprintf(stdout,"test\n");
+			FILE * input = fopen(argv[i], "r");
+			if(input == NULL){
+				ERROR_MSG("couldn't open file %s", argv[i]);		//give warning, ignore file and continue
+				continue;
+			}
+			handle_file(input, &set);
 			fclose(input);
-			
 		}
 	}
-	return 0;
+	exit(EXIT_SUCCESS);
 }
