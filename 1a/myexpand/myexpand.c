@@ -35,7 +35,7 @@ char * name = "myexpand";	// holds name of the program, is hardcoded since argv[
 							// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
 
 
-void readFile(FILE * file, int tabstop){
+void read_file(FILE * file, int tabstop){
 	char readChar;
 	int writePos = 0;
 	while((readChar = fgetc(file))!=EOF){
@@ -76,7 +76,7 @@ int main(int argc, char ** argv){
 	}
 
 	if(optind == argc){
-		readFile(stdin, tabstop);
+		read_file(stdin, tabstop);
 		exit(EXIT_SUCCESS);
 	} else{
 		for(int i = optind; i < argc; i++){
@@ -84,7 +84,7 @@ int main(int argc, char ** argv){
 			if(input == NULL){
 				ERROR_EXIT("unable to open file");
 			}
-			readFile(input, tabstop);
+			read_file(input, tabstop);
 			fclose(input);
 		}
 		exit(EXIT_SUCCESS);
