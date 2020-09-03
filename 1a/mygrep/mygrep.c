@@ -8,7 +8,7 @@
 // do while is not strictly needed but prevents errors when using the macro in some specific situations (but not in this program)
 #define USAGE()																	\
 	do{																			\
-		fprintf(stdout,"USAGE: %s [-s] [-i] [-o outfile] [file...]", name);		\
+		fprintf(stdout,"USAGE: %s [-i] [-o outfile] keyword [file...]", name);		\
 		exit(EXIT_FAILURE);														\
 	} while(0)
 
