@@ -131,14 +131,15 @@ int handle_arguments(Settings * set, int argc, char ** argv){
 				if(set->output != stdout){
 					fclose(set->output);
 				}
-				set->output = fopen(optarg, "w");
-				if(set->output == NULL){
-					ERROR_EXIT("couldn't open output-file %s", optarg);
-				}
-				break;
+				set->output = fopen(optarg, "w");	// should be done after getopt since only last -o is needed to be opened
+
 			default:
 				USAGE();
 		}
+	}
+
+	if(set->output == NULL){		// done here cause only last call of fopen is important
+		ERROR_EXIT("couldn't open output-file");
 	}
 	return optind;
 }
