@@ -132,7 +132,7 @@ int handle_arguments(Settings * set, int argc, char ** argv){
 					fclose(set->output);
 				}
 				set->output = fopen(optarg, "w");	// should be done after getopt since only last -o is needed to be opened
-
+				break;
 			default:
 				USAGE();
 		}
