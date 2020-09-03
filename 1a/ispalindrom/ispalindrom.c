@@ -105,6 +105,9 @@ void handle_file(FILE * input, Settings * set){
 		if(line[ strlen(line) - 1] == '\n'){		//strip \n in case it got read by getline
 			line[ strlen(line) - 1] = '\0';
 		}
+		if(strlen(line) == 0){
+			continue;
+		}
 		string_handler(line, set);
 	}
 
