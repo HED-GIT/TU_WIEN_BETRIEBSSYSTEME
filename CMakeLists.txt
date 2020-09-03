@@ -27,6 +27,10 @@ add_executable(mydiff 1a/mydiff/mydiff.c)
 
 add_executable(myexpand 1a/myexpand/myexpand.c)
 
+#binary-digits c
+
+add_executable(binary-digits 1a/binary-digits/binary-digits.c)
+
 #html c
 add_executable(server 1b/html/sharedTools.c 1b/html/server.c)
 	
