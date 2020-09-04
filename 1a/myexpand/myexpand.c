@@ -29,13 +29,13 @@
 	} while(0)
 
 
-char * name = "myexpand";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "myexpand";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 							// for example it could be set wrong when the program is executed using exec (man exec)
 							// but that also means that it doesn't change when you rename the program
 							// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
 
 
-void read_file(FILE * file, int tabstop){
+static void read_file(FILE * file, int tabstop){
 	char readChar;
 	int writePos = 0;
 	while((readChar = fgetc(file))!=EOF){

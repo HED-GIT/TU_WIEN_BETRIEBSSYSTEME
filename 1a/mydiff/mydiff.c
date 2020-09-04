@@ -30,7 +30,7 @@
 		exit(EXIT_FAILURE); 									\
 	} while(0)
 
-char * name = "mydiff";			// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "mydiff";			// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 								// for example it could be set wrong when the program is executed using exec (man exec)
 								// but that also means that it doesn't change when you rename the program
 								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
@@ -45,7 +45,7 @@ typedef struct{
 	FILE * out;
 }FILES;
 
-int charToCompare(int character, Flags flags){
+static int charToCompare(int character, Flags flags){
 	if(flags.i){
 		return tolower(character);
 	}
@@ -54,7 +54,7 @@ int charToCompare(int character, Flags flags){
 	}
 }
 
-int handler(char *text1, char *text2, Flags flags){
+static int handler(char *text1, char *text2, Flags flags){
 
 	if(*text1 == '\n' || *text2 == '\n' || *text1 == '\0' || *text2 == '\0')
 		return 0;
@@ -64,7 +64,7 @@ int handler(char *text1, char *text2, Flags flags){
 		return 1 + handler(++text1,++text2,flags);
 }
 
-void argumentHandler(Flags * flags, FILES * file, int argc, char ** argv){
+static void argumentHandler(Flags * flags, FILES * file, int argc, char ** argv){
 	int opt;
 	while((opt = getopt(argc, argv, "io:"))!=-1){
 		switch(opt){
@@ -96,7 +96,7 @@ void argumentHandler(Flags * flags, FILES * file, int argc, char ** argv){
 	}
 }
 
-void fileHandler(FILES* file, Flags flags){
+static void fileHandler(FILES* file, Flags flags){
 	char * read1 = NULL;
 	char * read2 = NULL;
 	size_t size1 = 0;

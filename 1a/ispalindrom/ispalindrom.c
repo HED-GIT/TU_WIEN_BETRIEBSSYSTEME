@@ -38,20 +38,20 @@ typedef struct Settings{		// struct that holds all settings of the program
 	FILE * output;				// gcc should also throw a warning if you try to assign a value greater then 1 to a
 }Settings;
 
-char * name = "ispalindrom";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "ispalindrom";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 								// for example it could be set wrong when the program is executed using exec (man exec)
 								// but that also means that it doesn't change when you rename the program
 								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
 
 // converts the word to a lowercase version of itself
-void string_to_lower(char * word){
+static void string_to_lower(char * word){
 	for(; *word!='\0'; word++){
 		*word = tolower(*word);
 	}
 }
 
 // remove spaces from a word
-void remove_space(char * word){
+static void remove_space(char * word){
 	for(char* reader = word; *reader != '\0'; ++reader){
 		if(*reader!=' '){
 			*word = *reader;
@@ -62,7 +62,7 @@ void remove_space(char * word){
 }
 
 // checks if the word is a palindrom
-int is_palindrom(char* word){	
+static int is_palindrom(char* word){	
 	char* last = word+strlen(word)-1;
 	while(last >= word){
 		if(*last != *word)
@@ -75,7 +75,7 @@ int is_palindrom(char* word){
 }
 
 // handles one individuel line
-void string_handler(const char* word, Settings * set){
+static void string_handler(const char* word, Settings * set){
 	char * checkWord = strdup(word);	// copy string so that the original string can be printed
 
 	if(checkWord == NULL){
@@ -97,7 +97,7 @@ void string_handler(const char* word, Settings * set){
 }
 
 // reads file line for line and checks for palindrom
-void handle_file(FILE * input, Settings * set){
+static void handle_file(FILE * input, Settings * set){
 	
 	char * line = NULL;
 	size_t size = 0;
@@ -120,7 +120,7 @@ void handle_file(FILE * input, Settings * set){
 
 // reads commandline arguments
 // returns position of first input-file
-int handle_arguments(Settings * set, int argc, char ** argv){
+static int handle_arguments(Settings * set, int argc, char ** argv){
 	int opt;
 	while((opt=getopt(argc, argv, "sio:"))!=-1){
 		switch(opt){

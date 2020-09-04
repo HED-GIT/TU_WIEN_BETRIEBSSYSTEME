@@ -31,7 +31,7 @@
 		exit(EXIT_FAILURE); 									\
 	} while(0)
 
-char * name = "binary-digits";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "binary-digits";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 								// for example it could be set wrong when the program is executed using exec (man exec)
 								// but that also means that it doesn't change when you rename the program
 								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
@@ -41,7 +41,7 @@ typedef struct Settings{		// struct that holds all settings of the program
 	FILE * output;
 }Settings;
 
-int handle_arguments(int argc, char ** argv, Settings *set){
+static int handle_arguments(int argc, char ** argv, Settings *set){
     int opt;
 	while((opt=getopt(argc, argv, "d:o:"))!=-1){
         char* end = NULL;
@@ -69,7 +69,7 @@ int handle_arguments(int argc, char ** argv, Settings *set){
     return optind;
 }
 
-void handle_file(FILE * input, Settings * set){
+static void handle_file(FILE * input, Settings * set){
     int character;
     while((character = getc(input)) != EOF){
         for(int i = 0; i < 8; i++){

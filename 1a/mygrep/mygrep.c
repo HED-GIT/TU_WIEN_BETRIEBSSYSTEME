@@ -36,7 +36,7 @@ typedef struct Settings{		// struct that holds all settings of the program
 	FILE * output;				// gcc should also throw a warning if you try to assign a value greater then 1 to it
 }Settings;
 
-char * name = "mygrep";			// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "mygrep";			// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 								// for example it could be set wrong when the program is executed using exec (man exec)
 								// but that also means that it doesn't change when you rename the program
 								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
@@ -47,13 +47,13 @@ typedef struct{
 	int o;
 }Flags;
 
-void string_to_lower(char * word){	
+static void string_to_lower(char * word){	
 	for(; *word!='\0';++word){
 		*word = tolower(*word);
 	}
 }
 
-void handle_file(FILE * input, Settings * set, char * key){
+static void handle_file(FILE * input, Settings * set, char * key){
 	char  * read = NULL;
 	size_t size = 0;
 

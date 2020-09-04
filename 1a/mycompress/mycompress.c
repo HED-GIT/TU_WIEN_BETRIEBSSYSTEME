@@ -28,7 +28,7 @@
 		exit(EXIT_FAILURE); 									\
 	} while(0)
 
-char * name = "mycompress";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
+static char * name = "mycompress";	// holds name of the program, is hardcoded since argv[0] doesn't have to hold the correct name
 								// for example it could be set wrong when the program is executed using exec (man exec)
 								// but that also means that it doesn't change when you rename the program
 								// under linux you could figure out the correct name using 'readlink("/proc/self/exe", char * buf, size_t bufsiz);' but i can't be bothered to do it like this
@@ -38,7 +38,7 @@ char * name = "mycompress";	// holds name of the program, is hardcoded since arg
  * nowhere is defined if the output (how many char where read/written) should be printed for all input files once or for every single one seperately
  * i print it once per file
  */ 
-void fileHandler(FILE * outFile, FILE * inFile){
+static void fileHandler(FILE * outFile, FILE * inFile){
 	int next;
 	int current = EOF;
 	int amount = 0;
