@@ -87,8 +87,7 @@ static void handle_file(FILE * input, Settings * set){
             tim1.tv_nsec = (long)(set->delay * 1000000000L)%1000000000L;        
             int res;
             do {
-                res = nanosleep(&tim1, &tim1);                                  //untested since nanosleep doesn't work on the ubuntu vm console for windows
-                                                                                //todo: test on linux system
+                res = nanosleep(&tim1, &tim1);
             } while (res && errno == EINTR);
             if(res == -1){
                 ERROR_MSG("couldn't wait for given time");
