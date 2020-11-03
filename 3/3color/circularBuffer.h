@@ -1,3 +1,4 @@
+#pragma once
 #include <fcntl.h> 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -8,8 +9,6 @@
 #include <unistd.h> 
 #include <time.h> 
 #include <errno.h>
-
-char * name;
 
 #define SHMNAME "/11775789SHM2"
 #define STATENAME "/11775789state"
@@ -25,12 +24,6 @@ char * name;
 #define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); exit(EXIT_FAILURE); }
 #define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
 #define ERROR_MSG(...) {fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); }
-
-sem_t * free_sem;
-sem_t * used_sem;
-sem_t * write_sem;
-
-int shmfd;
 
 /**
 *@brief saves start and end vertice of an edge
@@ -58,8 +51,6 @@ typedef struct buffer{
 	int readPosition;
 } buffer;
 
-buffer * buf;
-
 
 int circ_buf_write(returnValue * val);
 
@@ -80,3 +71,13 @@ int set_state(int i);
 int get_state();
 
 void printEdge(const edge * i_edge, int length);
+
+extern sem_t * free_sem;
+extern sem_t * used_sem;
+extern sem_t * write_sem;
+
+extern int shmfd;
+
+extern buffer * buf;
+
+extern char * name;

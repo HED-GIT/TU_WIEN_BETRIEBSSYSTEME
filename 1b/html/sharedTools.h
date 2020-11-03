@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-char * fileName;
+extern char * fileName;
+
 #define CHARLENGTH 1024
 #define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
 #define ERROR_MSG(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
