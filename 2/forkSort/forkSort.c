@@ -9,9 +9,9 @@
 #define MAXLENGTH 100000
 #define MAX_AMOUNT_STRINGS 100
 
-#define USAGE() {fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}
-#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
-#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
+#define USAGE() do{fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}while(0)
+#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }while(0)
+#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(0)
 
 
 #define PIPE_1_WRITE 0
