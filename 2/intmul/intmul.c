@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#define USAGE() {fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}
-#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
-#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
+#define USAGE() do{fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}while(0)
+#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }while(0)
+#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(0)
 
 #define MAXLENGTH 1024
 #define HEXDIGITS "0123456789ABCDEFabcdef"
@@ -24,7 +24,7 @@
 #define READ_CHILD_LL 6
 #define WRITE_CHILD_LL (READ_CHILD_LL+1)
 
-char * fileName;
+static char * fileName;
 
 static int isHex(char *hexString);
 static void readInput(char *firstString, char *secondString);

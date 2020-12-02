@@ -22,7 +22,7 @@
 #define READ 0
 #define WRITE 1
 
-char * fileName;
+static char * fileName;
 
 
 
