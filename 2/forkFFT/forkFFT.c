@@ -12,9 +12,9 @@
 #define PI 3.141592654
 #define MAXLENGTH 100000
 
-#define USAGE() {fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}
-#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }
-#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
+#define USAGE() do{fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}while(1)
+#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }while(1)
+#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(1)
 
 #define REGEX "\\d*(.\\d*)?(\\s\\d*(.\\d*)?\\s\\*i)?\\n?"
 
@@ -26,7 +26,7 @@
 #define READ 0
 #define WRITE 1
 
-char * fileName;
+static char * fileName;
 
 /**
 *@brief saves the real and the imaginary part of a complex number
