@@ -14,7 +14,7 @@
 
 #define USAGE() 																	\
 	do{																				\
-		fprintf(stderr,"USAGE:\t./client [-p PORT] [ -o FILE | -d DIR ] URL\n"); 	\
+		fprintf(stderr,"USAGE:\t%s [-p PORT] [ -o FILE | -d DIR ] URL\n",fileName); \
 		exit(EXIT_FAILURE);															\
 	} while(0)
 
@@ -122,8 +122,6 @@ int main(int argc, char *argv[]) {
 	FILE * out = stdout;
 	char* p_port = "80";
 	char *d_dir= malloc(sizeof(char)*CHARLENGTH);
-
-
 
 	int c;
 	while ((c= getopt(argc, argv, "p:o:d:")) != -1) {

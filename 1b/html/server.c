@@ -16,7 +16,7 @@
 
 #define USAGE() 															\
 	do{																		\
-		fprintf(stderr,"USAGE:\t./server [-p PORT] [-i INDEX] DOC_ROOT\n");	\
+		fprintf(stderr,"USAGE:\t%s [-p PORT] [-i INDEX] DOC_ROOT\n", fileName);	\
 		exit(EXIT_FAILURE);													\
 	} while(0)
 
