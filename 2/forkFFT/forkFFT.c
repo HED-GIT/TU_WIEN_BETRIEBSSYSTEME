@@ -12,9 +12,9 @@
 #define PI 3.141592654
 #define MAXLENGTH 100000
 
-#define USAGE() do{fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}while(1)
-#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }while(1)
-#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(1)
+#define USAGE() do{fprintf(stderr,"USAGE:\t%s\n",fileName); exit(EXIT_FAILURE);}while(0)
+#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",fileName); exit(EXIT_FAILURE); }while(0)
+#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(0)
 
 #define REGEX "\\d*(.\\d*)?(\\s\\d*(.\\d*)?\\s\\*i)?\\n?"
 
