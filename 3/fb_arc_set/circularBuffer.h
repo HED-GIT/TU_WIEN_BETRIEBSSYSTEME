@@ -12,20 +12,20 @@
 
 char * name;
 
-#define SHMNAME "/11775789SHM2"
-#define STATENAME "/11775789state"
+#define SHMNAME "/your_student_id_SHM2"
+#define STATENAME "/your_student_id_state"
 #define MAXGRAPHSIZE 100
 
-#define SEM_1 "/11775789sem_1"
-#define SEM_2 "/11775789sem_2"
-#define SEM_W "/11775789sem_W"
+#define SEM_1 "/your_student_id_sem_1"
+#define SEM_2 "/your_student_id_sem_2"
+#define SEM_W "/your_student_id_sem_W"
 #define BUFFERLENGTH 5
 
 #define MAXRETURN 8
 
-#define ERROR_EXIT(...) { fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); exit(EXIT_FAILURE); }
-#define SUCCESS_EXIT() {exit(EXIT_SUCCESS);}
-#define ERROR_MSG(...) {fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); }
+#define ERROR_EXIT(...) do{ fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); exit(EXIT_FAILURE); }while(0)
+#define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(0)
+#define ERROR_MSG(...) do{fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); }while(0)
 
 sem_t * free_sem;
 sem_t * used_sem;
@@ -39,7 +39,6 @@ int shmfd;
 typedef struct edges {
   int start;
   int end;
-
 }
 edge;
 
