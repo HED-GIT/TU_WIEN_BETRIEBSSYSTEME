@@ -183,5 +183,5 @@ int main(int argc, char * argv[]) {
 	free(readLines1);
 	free(readLines2);
 	
-    SUCCESS_EXIT()
+    SUCCESS_EXIT();
 }
