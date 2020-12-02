@@ -247,5 +247,5 @@ int main(int argc, char * argv[]) {
 	
 	freeRegex();
 	free(newNumbers);
-    SUCCESS_EXIT()
+    SUCCESS_EXIT();
 }
