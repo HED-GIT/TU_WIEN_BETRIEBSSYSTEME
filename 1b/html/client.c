@@ -12,14 +12,18 @@
 #include "sharedTools.h"
 
 
-#define USAGE() {fprintf(stderr,"USAGE:\t./client [-p PORT] [ -o FILE | -d DIR ] URL\n"); exit(EXIT_FAILURE);}
+#define USAGE() 																	\
+	do{																				\
+		fprintf(stderr,"USAGE:\t./client [-p PORT] [ -o FILE | -d DIR ] URL\n"); 	\
+		exit(EXIT_FAILURE);															\
+	} while(0)
 
 #define DEFAULTFILE "index.html"
 
 typedef struct FLAG_S{
-	int p_flag;
-	int o_flag;
-	int d_flag;
+	int p_flag : 1;
+	int o_flag : 1;
+	int d_flag : 1;
 } FLAG_S;
 
 /**

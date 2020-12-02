@@ -14,7 +14,11 @@
 
 #include "sharedTools.h"
 
-#define USAGE() {fprintf(stderr,"USAGE:\t./server [-p PORT] [-i INDEX] DOC_ROOT\n");exit(EXIT_FAILURE);}
+#define USAGE() 															\
+	do{																		\
+		fprintf(stderr,"USAGE:\t./server [-p PORT] [-i INDEX] DOC_ROOT\n");	\
+		exit(EXIT_FAILURE);													\
+	} while(0)
 
 static int terminate = 0;
 
