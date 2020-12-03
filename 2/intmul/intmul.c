@@ -155,7 +155,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	readInput(firstString, secondString);
-
 	length = strlen(firstString) / 2;
 
 	if (strlen(firstString) == 1) {
@@ -199,7 +198,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//create child processes
-	for(int i; i<4;i++){
+	for(int i = 0; i<4;i++){
 		pid[i] = fork();
 		if(pid[i]<0){
 			ERROR_EXIT("Error at forking");
