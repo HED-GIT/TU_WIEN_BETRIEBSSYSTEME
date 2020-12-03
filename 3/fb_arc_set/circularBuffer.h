@@ -27,12 +27,6 @@ char * name;
 #define SUCCESS_EXIT() do{exit(EXIT_SUCCESS);}while(0)
 #define ERROR_MSG(...) do{fprintf(stderr, "%s ERROR: " __VA_ARGS__"\n",name); }while(0)
 
-sem_t * free_sem;
-sem_t * used_sem;
-sem_t * write_sem;
-
-int shmfd;
-
 /**
 *@brief saves start and end vertice of an edge
 */
@@ -58,9 +52,6 @@ typedef struct buffer{
 	int readPosition;
 } buffer;
 
-buffer * buf;
-
-
 int circ_buf_write(returnValue * val);
 
 int circ_buf_read(returnValue * value);
@@ -84,3 +75,13 @@ int get_state();
 *@param i_edge: edge array to be printed, length: amount of edges which should be printed out
 */
 void printEdge(const edge * i_edge, int length);
+
+extern sem_t * free_sem;
+extern sem_t * used_sem;
+extern sem_t * write_sem;
+
+extern int shmfd;
+
+extern buffer * buf;
+
+extern char * name;

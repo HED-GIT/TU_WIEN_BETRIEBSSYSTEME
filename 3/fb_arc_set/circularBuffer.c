@@ -1,5 +1,12 @@
 #include "circularBuffer.h"
 
+sem_t * free_sem;
+sem_t * used_sem;
+sem_t * write_sem;
+
+int shmfd;
+buffer * buf;
+char * name;
 
 int circ_buf_write(returnValue * val) {
 

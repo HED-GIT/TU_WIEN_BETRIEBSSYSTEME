@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-char * fileName;
+extern char * fileName;
+
 #define CHARLENGTH 1024
 
 #define ERROR_EXIT(...)                                             \

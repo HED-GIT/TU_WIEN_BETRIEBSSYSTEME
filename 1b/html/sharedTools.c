@@ -6,6 +6,8 @@
 #include <netdb.h>
 #include <stdlib.h>
 
+char * fileName;
+
 /**
 @brief checks if the given port is a valid one
 @details  checks if it is not NULL and only contains digits
