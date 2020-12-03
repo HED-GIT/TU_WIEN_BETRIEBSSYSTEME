@@ -29,7 +29,7 @@ static char * fileName;
 static int isHex(char *hexString);
 static void readInput(char *firstString, char *secondString);
 static void multHexChar(char *a, const char *b);
-static void addHexCharOverflow(char *a, const char *b, char *overflow);
+static void addHexCharOverflow(char *a, char *b, char *overflow);
 static void addHex(char *firstHex, const char *secondHex);
 static void addXZeros(char * a, int count);
 
@@ -73,13 +73,35 @@ static void multHexChar(char *a, const char *b) {
 }
 
 /**
+ *@brief converts a single hexcharacter into its int representation
+ *@param character the character to convert 
+ */
+static int hexCharToInt(char character){
+	if (character >= '0' && character <= '9')
+		return character - '0';
+	if (character >= 'A' && character <= 'F')
+        return character - 'A' + 10;
+    if (character >= 'a' && character <= 'f')
+        return character - 'a' + 10;
+    return -1;
+}
+
+static char intToHexChar(int i){
+	if(i < 10){
+		return '0' + i;
+	}else{
+		return 'A' + i - 10;
+	}
+}
+
+/**
 *@brief adds two hex-numbers and adds an overflow
-*@param the numbers to add together, value returned in first parameter, overflow in last one
+*@param the numbers to add together, value returned in first , overflow in last one
 */
-static void addHexCharOverflow(char *a, const char *b, char *overflow) {
-	int value = (int)strtol(a, NULL, 16) + (int)strtol(b, NULL, 16) + (int)strtol(overflow, NULL, 16);
-	sprintf(a, "%x", value % 16);
-	sprintf(overflow, "%x", value / 16);
+static void addHexCharOverflow(char *a, char *b, char *overflow) {
+	int value = hexCharToInt(*a) + hexCharToInt(*b) + hexCharToInt(*overflow); // functions like strtol would need a \0 at the end and since we deal with only a character at a time we can use a custom function
+	*a = intToHexChar(value % 16);
+	*overflow = intToHexChar(value / 16);
 }
 
 /**
@@ -87,24 +109,24 @@ static void addHexCharOverflow(char *a, const char *b, char *overflow) {
 *@param the numbers to add together, value returned in first parameter
 */
 static void addHex(char *firstHex, const char *secondHex) {
-	char overflow[2] = "0\0";
-	char firstChar[2] = "0\0";
-	char secondChar[2] = "0\0";
+	char overflow = '0';
+	char firstChar = '0';
+	char secondChar = '0';
 	int dif = strlen(firstHex) - strlen(secondHex);
 	for (int i = strlen(firstHex) - 1; i >= 0; i--)
 	{
-		firstChar[0] = firstHex[i];
-		secondChar[0] = (i - dif < 0) ? '0' : secondHex[i - dif];
-		addHexCharOverflow(firstChar, secondChar, overflow);
-		firstHex[i] = firstChar[0];
+		firstChar = firstHex[i];
+		secondChar = (i - dif < 0) ? '0' : secondHex[i - dif];
+		addHexCharOverflow(&firstChar, &secondChar, &overflow);
+		firstHex[i] = firstChar;
 	}
 
-	if (overflow[0] != '0') {
+	if (overflow != '0') {
 		for (int i = strlen(firstHex); i >= 0; i--)
 		{
 			firstHex[i + 1] = firstHex[i];
 		}
-		firstHex[0] = overflow[0];
+		firstHex[0] = overflow;
 	}
 }
 
