@@ -142,11 +142,16 @@ static int readInput(ComplexNumber * numbers){
 }
 
 static void calculateNewNumbers(int numberAmount, FILE *fileE, FILE *fileO, ComplexNumber *retNumbers){
-    char * oline = NULL;			//read string with o values
-    char * eline = NULL;			//read string with e values
-    size_t length = 0;				//size of string for getline
+
     
     for (int k = 0; k < numberAmount / 2; k++) {
+        char * oline = NULL;			//read string with o values
+        char * eline = NULL;			//read string with e values
+        char * eline_free_pointer;      //used to free the initial pointer eline since the pointer in eline will change before we can free it savely
+        char * oline_free_pointer;      //used to free the initial pointer oline since the pointer in oline will change before we can free it savely
+
+        size_t length = 0;				//size of string for getline
+
         ComplexNumber e; 		//saves read E-value
         ComplexNumber o;		//saves read O-value
 
@@ -154,21 +159,26 @@ static void calculateNewNumbers(int numberAmount, FILE *fileE, FILE *fileO, Comp
         ComplexNumber new2;		//saves new calculated value
 
         getline( & eline, & length, fileE);
+        eline_free_pointer = eline;     //save pointer in eline since strtof will change it but we still need to free it later
         e.real = strtof(eline, & eline);
-        e.imaginary = strtof(eline, & eline);
+        e.imaginary = strtof(eline, NULL);
+        free(eline_free_pointer);
+        length = 0;
 
         getline( & oline, & length, fileO);
+        oline_free_pointer = oline;
         o.real = strtof(oline, & oline);
-        o.imaginary = strtof(oline, & oline);
+        o.imaginary = strtof(oline, NULL);
+        free(oline_free_pointer);
 
-        new1.real = cos((-((2 * PI) / numberAmount)) * k);
-        new1.imaginary = sin((-((2 * PI) / numberAmount)) * k);
+        new1.real = cos((-(2 * PI) / numberAmount) * k);
+        new1.imaginary = sin((-(2 * PI) / numberAmount) * k);
         new1 = multiply(&new1, &o);
 		new1 = add(&new1,&e);
         retNumbers[k] = new1;
 
-        new2.real = cos((-((2 * PI) / numberAmount)) * (k));
-        new2.imaginary = sin((-((2 * PI) / numberAmount)) * (k));
+        new2.real = cos((-(2 * PI) / numberAmount) * k);
+        new2.imaginary = sin((-(2 * PI) / numberAmount) * k);
         new2 = multiply(&new2, &o);
         new2 = subtract(&e, &new2);
         retNumbers[k + (numberAmount / 2)] = new2;
