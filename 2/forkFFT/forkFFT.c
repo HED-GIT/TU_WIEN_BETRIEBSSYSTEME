@@ -217,7 +217,7 @@ int main(int argc, char * argv[]) {
     for (int k = 0; k < counter / 2; k++) {
         ComplexNumber e; 		//saves read E-value
         ComplexNumber o;			//saves read O-value
-	//E is actually O and O is actually E (writes wrong values to wrong pipe)
+        //E is actually O and O is actually E (writes wrong values to wrong pipe)
         ComplexNumber  *new1 = malloc(sizeof(ComplexNumber));		//saves new calculated value
         ComplexNumber * new2 = malloc(sizeof(ComplexNumber));		//saves new calculated value
         getline( & eline, & length, fileE);
@@ -231,13 +231,17 @@ int main(int argc, char * argv[]) {
         new1->real = cos((-((2 * PI) / counter)) * k);
         new1->imaginary = sin((-((2 * PI) / counter)) * k);
         multiply(new1, &e);
-		add(new1,&o);
+        add(new1,&o);
         newNumbers[k] = new1;
 
         new2->real = cos((-((2 * PI) / counter)) * (k));
         new2->imaginary = sin((-((2 * PI) / counter)) * (k));
         multiply(new2, &e);
-        subtract(new2, &o);
+
+        subtract(&o, new2); // new2 = o - new2;
+        new2->real = o.real;
+        new2->imaginary = o.imaginary;
+
         newNumbers[k + (counter / 2)] = new2;
     }
     for (int i = 0; i < counter; i++) {
