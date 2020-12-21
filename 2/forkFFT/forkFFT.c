@@ -147,7 +147,7 @@ static int readInput(ComplexNumber * numbers){
 *@detail reads from stdin, splits the values and gives them to two child process
 *reads values from pipes and calculates forkFFT, prints endvalues to stdout 
 *no arguments are allowed
-*amount of lines read from stdin has to be 2^n (n>=0)
+*amount of lines read from stdin has to be 2^n (n>0)
 */
 int main(int argc, char * argv[]) {
     fileName = argv[0];
@@ -169,8 +169,9 @@ int main(int argc, char * argv[]) {
         fprintf(stdout, "%f %f *i\n", readNumbers[0].real, readNumbers[0].imaginary);
         SUCCESS_EXIT();
     }
-    if (numberAmount % 2 != 0) {
-        ERROR_EXIT("amount of input must be 2^n!");
+
+    if (numberAmount % 2 != 0 || numberAmount == 0) {
+        ERROR_EXIT("amount of input must be 2^n (n > 0)!");
     }
 
     ComplexNumber * newNumbers = malloc(sizeof(ComplexNumber)*numberAmount);	//saves new calculated numbers
@@ -235,6 +236,7 @@ int main(int argc, char * argv[]) {
 
         ComplexNumber new1;		//saves new calculated value
         ComplexNumber new2;		//saves new calculated value
+
         getline( & eline, & length, fileE);
         e.real = strtof(eline, & eline);
         e.imaginary = strtof(eline, & eline);
@@ -254,6 +256,7 @@ int main(int argc, char * argv[]) {
         new2 = multiply(&new2, &o);
         new2 = subtract(&e, &new2);
         newNumbers[k + (numberAmount / 2)] = new2;
+
     }
     for (int i = 0; i < numberAmount; i++) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i].real, newNumbers[i].imaginary);
