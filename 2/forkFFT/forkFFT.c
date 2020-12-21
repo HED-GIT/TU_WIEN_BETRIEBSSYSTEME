@@ -117,7 +117,7 @@ static void dupNeededPipes(int pipeAmount, int pipes[pipeAmount][2], int neededR
 *@detail reads from stdin, splits the values and gives them to two child process
 *reads values from pipes and calculates forkFFT, prints endvalues to stdout 
 *no arguments are allowed
-*amount of lines read from stdin has to be 2^n (n>=0)
+*amount of lines read from stdin has to be 2^n (n>0)
 */
 int main(int argc, char * argv[]) {
     fileName = argv[0];
@@ -154,8 +154,8 @@ int main(int argc, char * argv[]) {
         fprintf(stdout, "%f %f *i\n", readNumbers[0].real, readNumbers[0].imaginary);
         SUCCESS_EXIT();
     }
-    if (counter % 2 != 0) {
-        ERROR_EXIT("amount of input must be 2^n!");
+    if (counter % 2 != 0 || counter == 0) {
+        ERROR_EXIT("amount of input must be 2^n (n > 0)!");
     }
 
     ComplexNumber ** newNumbers = malloc(sizeof(ComplexNumber)*counter);	//saves new calculated numbers
