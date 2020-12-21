@@ -117,7 +117,6 @@ static void dupNeededPipes(int pipeAmount, int pipes[pipeAmount][2], int neededR
 	}
 }
 
-
 static int readInput(ComplexNumber * numbers){
     char * line = NULL;	    //read string from stdin
     ssize_t nread;	        //errorvalue for getline
@@ -142,93 +141,11 @@ static int readInput(ComplexNumber * numbers){
     return counter;
 }
 
-/**
-*@brief Programm entry point
-*@detail reads from stdin, splits the values and gives them to two child process
-*reads values from pipes and calculates forkFFT, prints endvalues to stdout 
-*no arguments are allowed
-*amount of lines read from stdin has to be 2^n (n>0)
-*/
-int main(int argc, char * argv[]) {
-    fileName = argv[0];
-	
-	regexInit();
-	
-	ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
-					//saves amount of numbers read from stdin
-
-    if (argc != 1) {
-        USAGE();
-    }
-
-    int numberAmount = readInput(readNumbers);
-
-
-
-    if (numberAmount == 1) {
-        fprintf(stdout, "%f %f *i\n", readNumbers[0].real, readNumbers[0].imaginary);
-        SUCCESS_EXIT();
-    }
-
-    if (numberAmount % 2 != 0 || numberAmount == 0) {
-        ERROR_EXIT("amount of input must be 2^n (n > 0)!");
-    }
-
-	int pipes[4][2];
-
-        if (pipe(pipes[PIPE_E_WRITE]) == -1 || pipe(pipes[PIPE_E_READ]) == -1 || pipe(pipes[PIPE_O_WRITE]) == -1 || pipe(pipes[PIPE_O_READ]) == -1) {
-        ERROR_EXIT("Pipe-Error");
-    }
-
-    int p1;					//first child process
-    if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
-    if (p1 == 0) {
-		dupNeededPipes(4,pipes,PIPE_E_READ,PIPE_E_WRITE);
-        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
-    }
-    int p2;					//second child process
-    if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
-    if (p2 == 0) {
-		dupNeededPipes(4, pipes,PIPE_O_READ,PIPE_O_WRITE);
-        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
-    }
-    close(pipes[PIPE_E_WRITE][READ]);
-    close(pipes[PIPE_O_WRITE][READ]);
-    close(pipes[PIPE_E_READ][WRITE]);
-    close(pipes[PIPE_O_READ][WRITE]);
-    char floatToString[MAXLENGTH];		//string that will be writen to the pipe
-
-    for (int i = 0; i < numberAmount; i++) {
-
-        snprintf(floatToString, sizeof(floatToString), "%.5f %.5f*i\n", readNumbers[i].real, readNumbers[i].imaginary);
-        if (i % 2 == 1)
-            write(pipes[PIPE_O_WRITE][WRITE], floatToString, (strlen(floatToString)));
-        else
-            write(pipes[PIPE_E_WRITE][WRITE], floatToString, (strlen(floatToString)));
-    }
-    close(pipes[PIPE_E_WRITE][WRITE]);
-    close(pipes[PIPE_O_WRITE][WRITE]);
-
-    int state;					//return state of the child process (never checked)
-    waitpid(p1, &state,0);
-	if(WEXITSTATUS(state)){
-		ERROR_EXIT("error in child");
-	}
-
-
-    waitpid(p2, &state, 0);
-	if(WEXITSTATUS(state)){
-		ERROR_EXIT("error in child");
-	}
-	
+static void calculateNewNumbers(int numberAmount, FILE *fileE, FILE *fileO, ComplexNumber *retNumbers){
     char * oline = NULL;			//read string with o values
     char * eline = NULL;			//read string with e values
     size_t length = 0;				//size of string for getline
-
-    FILE * fileE = fdopen(pipes[PIPE_E_READ][READ], "r");	//opens pipe as file
-    FILE * fileO = fdopen(pipes[PIPE_O_READ][READ], "r");	//opens pipe as file
-    ComplexNumber * newNumbers = malloc(sizeof(ComplexNumber)*numberAmount);	//saves new calculated numbers
-
+    
     for (int k = 0; k < numberAmount / 2; k++) {
         ComplexNumber e; 		//saves read E-value
         ComplexNumber o;		//saves read O-value
@@ -248,18 +165,128 @@ int main(int argc, char * argv[]) {
         new1.imaginary = sin((-((2 * PI) / numberAmount)) * k);
         new1 = multiply(&new1, &o);
 		new1 = add(&new1,&e);
-        newNumbers[k] = new1;
+        retNumbers[k] = new1;
 
         new2.real = cos((-((2 * PI) / numberAmount)) * (k));
         new2.imaginary = sin((-((2 * PI) / numberAmount)) * (k));
         new2 = multiply(&new2, &o);
         new2 = subtract(&e, &new2);
-        newNumbers[k + (numberAmount / 2)] = new2;
+        retNumbers[k + (numberAmount / 2)] = new2;
 
     }
+}
+
+static void createChildProcess(int pipes[4][2], int * pid_child_1, int * pid_child_2){
+    
+    if((*pid_child_1 = fork())==-1){
+        ERROR_EXIT("fork-Error");
+    }		
+
+    if (*pid_child_1 == 0) {
+		dupNeededPipes(4,pipes,PIPE_E_READ,PIPE_E_WRITE);
+        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
+    }
+
+    if((*pid_child_2 = fork())==-1){
+        ERROR_EXIT("fork-Error");
+    }
+
+    if (*pid_child_2 == 0) {
+		dupNeededPipes(4, pipes,PIPE_O_READ,PIPE_O_WRITE);
+        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
+    }
+    
+}
+
+static void writeToChildProcess(int pipes[4][2],int numberAmount, ComplexNumber * numbers){
+    char floatToString[MAXLENGTH];		//string that will be writen to the pipe
+
+    for (int i = 0; i < numberAmount; i++) {
+
+        snprintf(floatToString, sizeof(floatToString), "%.5f %.5f*i\n", numbers[i].real, numbers[i].imaginary);
+        if (i % 2 == 1)
+            write(pipes[PIPE_O_WRITE][WRITE], floatToString, (strlen(floatToString)));
+        else
+            write(pipes[PIPE_E_WRITE][WRITE], floatToString, (strlen(floatToString)));
+    }
+}
+
+static void waitForChildProcess(int pid_child_1, int pid_child_2){
+    int state;
+    waitpid(pid_child_1, &state,0);
+	if(WEXITSTATUS(state)){
+		ERROR_EXIT("error in child");
+	}
+
+
+    waitpid(pid_child_2, &state, 0);
+	if(WEXITSTATUS(state)){
+		ERROR_EXIT("error in child");
+	}
+}
+
+/**
+*@brief Programm entry point
+*@detail reads from stdin, splits the values and gives them to two child process
+*reads values from pipes and calculates forkFFT, prints endvalues to stdout 
+*no arguments are allowed
+*amount of lines read from stdin has to be 2^n (n>0)
+*/
+int main(int argc, char ** argv) {
+    fileName = argv[0];
+	
+	regexInit();
+	
+	ComplexNumber readNumbers[MAXLENGTH];	//saves all numbers read from stdin
+					//saves amount of numbers read from stdin
+
+    if (argc != 1) {
+        USAGE();
+    }
+
+    int numberAmount = readInput(readNumbers);
+
+    if (numberAmount == 1) {
+        fprintf(stdout, "%f %f *i\n", readNumbers[0].real, readNumbers[0].imaginary);
+        SUCCESS_EXIT();
+    }
+
+    if (numberAmount % 2 != 0 || numberAmount == 0) {
+        ERROR_EXIT("amount of input must be 2^n (n > 0)!");
+    }
+
+	int pipes[4][2];
+
+    if (pipe(pipes[PIPE_E_WRITE]) == -1 || pipe(pipes[PIPE_E_READ]) == -1 || pipe(pipes[PIPE_O_WRITE]) == -1 || pipe(pipes[PIPE_O_READ]) == -1) {
+        ERROR_EXIT("Pipe-Error");
+    }
+
+    int pid_1;
+    int pid_2;
+    createChildProcess(pipes,&pid_1, &pid_2);
+
+    close(pipes[PIPE_E_WRITE][READ]);
+    close(pipes[PIPE_O_WRITE][READ]);
+    close(pipes[PIPE_E_READ][WRITE]);
+    close(pipes[PIPE_O_READ][WRITE]);
+
+    writeToChildProcess(pipes,numberAmount,readNumbers);
+
+    close(pipes[PIPE_E_WRITE][WRITE]);
+    close(pipes[PIPE_O_WRITE][WRITE]);
+
+    waitForChildProcess(pid_1,pid_2);
+
+    FILE * fileE = fdopen(pipes[PIPE_E_READ][READ], "r");	//opens pipe as file
+    FILE * fileO = fdopen(pipes[PIPE_O_READ][READ], "r");	//opens pipe as file
+
+    ComplexNumber * newNumbers = malloc(sizeof(ComplexNumber)*numberAmount);	//saves new calculated numbers
+    calculateNewNumbers(numberAmount,fileE,fileO,newNumbers);
+
     for (int i = 0; i < numberAmount; i++) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i].real, newNumbers[i].imaginary);
 	}
+
 	fclose(fileE);
     fclose(fileO);
 	free(newNumbers);
