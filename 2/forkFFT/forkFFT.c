@@ -174,8 +174,6 @@ int main(int argc, char * argv[]) {
         ERROR_EXIT("amount of input must be 2^n (n > 0)!");
     }
 
-    ComplexNumber * newNumbers = malloc(sizeof(ComplexNumber)*numberAmount);	//saves new calculated numbers
-
 	int pipes[4][2];
 
         if (pipe(pipes[PIPE_E_WRITE]) == -1 || pipe(pipes[PIPE_E_READ]) == -1 || pipe(pipes[PIPE_O_WRITE]) == -1 || pipe(pipes[PIPE_O_READ]) == -1) {
@@ -186,13 +184,13 @@ int main(int argc, char * argv[]) {
     if((p1 = fork())==-1){ERROR_EXIT("fork-Error");}				
     if (p1 == 0) {
 		dupNeededPipes(4,pipes,PIPE_E_READ,PIPE_E_WRITE);
-        if(execlp("./forkFFT", fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     int p2;					//second child process
     if((p2 = fork())==-1){ERROR_EXIT("fork-Error");}	
     if (p2 == 0) {
 		dupNeededPipes(4, pipes,PIPE_O_READ,PIPE_O_WRITE);
-        if(execlp("./forkFFT", fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
+        if(execlp(fileName, fileName, NULL)==-1){ERROR_EXIT("execlp-Error");}
     }
     close(pipes[PIPE_E_WRITE][READ]);
     close(pipes[PIPE_O_WRITE][READ]);
@@ -229,6 +227,7 @@ int main(int argc, char * argv[]) {
 
     FILE * fileE = fdopen(pipes[PIPE_E_READ][READ], "r");	//opens pipe as file
     FILE * fileO = fdopen(pipes[PIPE_O_READ][READ], "r");	//opens pipe as file
+    ComplexNumber * newNumbers = malloc(sizeof(ComplexNumber)*numberAmount);	//saves new calculated numbers
 
     for (int k = 0; k < numberAmount / 2; k++) {
         ComplexNumber e; 		//saves read E-value
