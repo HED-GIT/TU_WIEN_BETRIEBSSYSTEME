@@ -261,7 +261,8 @@ int main(int argc, char * argv[]) {
     for (int i = 0; i < numberAmount; i++) {
         fprintf(stdout, "%.6f %.6f *i\n", newNumbers[i].real, newNumbers[i].imaginary);
 	}
-	
+	fclose(fileE);
+    fclose(fileO);
 	free(newNumbers);
     SUCCESS_EXIT();
 }
