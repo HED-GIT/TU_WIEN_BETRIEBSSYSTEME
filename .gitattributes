@@ -1,2 +1,3 @@
 CMakeLists.txt linguist-detectable=false
 Makefile linguist-detectable=false
+Dockerfile linguist-detectable=false
