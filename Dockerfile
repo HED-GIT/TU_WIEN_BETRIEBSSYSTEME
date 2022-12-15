@@ -2,7 +2,7 @@
 
 FROM centos:7
 
-RUN yum -y install cmake make gcc
+RUN yum -y install cmake make gcc valgrind
 
 WORKDIR /os
 COPY . .
