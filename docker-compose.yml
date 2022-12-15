@@ -1,0 +1,8 @@
+# ignore this file, i use it to test everything on centos on a non centos computer
+version: "3"
+
+services:
+  test_env:
+    build: ./
+    stdin_open: true
+    tty: true

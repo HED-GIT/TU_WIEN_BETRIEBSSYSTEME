@@ -1,10 +1,23 @@
 # TU_WIEN_BETRIEBSSYSTEME
 
-The solutions for the UE Betriebssysteme. If you do not find your assignment in the folder you expect it to find, search the other folders as well. I know that they changed the order in which they numbered the exercises, for example, at the moment I write this I know that they swapped assignment 1b with assignment 3.
+## solutions
 
-## untested changes
-
-Most of those programs were not tested on their test-server so I cannot guarantee that all of them compile warning free. But most likely they will.
+- 1a: file read-write
+  - binary-digits
+  - ispalindrom
+  - mycompress
+  - mydiff
+  - myexpand
+  - mygrep
+- 1b: sockets
+  - html
+- 2: fork/execlp
+  - forkFFT
+  - forkSort
+  - intmul
+- 3: shared memory
+  - 3color
+  - fb_arc_set
 
 ## todos
 
@@ -35,4 +48,3 @@ Most of those programs were not tested on their test-server so I cannot guarante
   - mydiff switch away from getline
   - check if i have to be ashamed of the 1a programs
   - check for minor bugs
-  - docker

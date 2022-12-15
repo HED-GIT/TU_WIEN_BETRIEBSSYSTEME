@@ -1,8 +1,8 @@
 # ignore this file, it exists so that i can build all programs from one file instead of using a different make for every program
 
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 2.8.0)
 
-project(projects LANGUAGES C)
+project(projects C)
 
 SET(CMAKE_C_COMPILER gcc)
 add_compile_options(-std=c99 -pedantic -Wall -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SCID_SOURCE -D_POSIX_C_SOURCE=200809L)

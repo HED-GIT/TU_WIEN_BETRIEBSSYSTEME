@@ -1,0 +1,29 @@
+# ignore this file, it is part of my docker test environment
+
+build/
+angaben/
+.vscode/
+*.o
+
+# git
+.git
+.gitattributes
+.gitignore
+
+# 3
+generator
+supervisor
+# 2
+forkFFT
+intmul
+forkSort
+# 1b
+client
+server
+# 1a
+binary-digits
+ispalindrom
+mycompress
+mydiff
+myexpand
+mygrep
