@@ -6,11 +6,11 @@
 
 // macro used to print usage
 // do while is not strictly needed but prevents errors when using the macro in some specific situations (but not in this program)
-#define USAGE()                                                                 \
-	do                                                                          \
-	{                                                                           \
-		fprintf(stdout, "USAGE: %s [-i] [-o outfile] keyword [file...]", name); \
-		exit(EXIT_FAILURE);                                                     \
+#define USAGE()                                                                 	\
+	do                                                                          	\
+	{                                                                           	\
+		fprintf(stdout, "USAGE: %s [-i] [-o outfile] keyword [file...]\n", name); 	\
+		exit(EXIT_FAILURE);                                                     	\
 	} while (0)
 
 // macro used to print errors, program still continues on
@@ -93,6 +93,7 @@ static void handle_file(FILE *input, Settings *set, char *key)
 	{
 		ERROR_EXIT("couldn't read file to end");
 	}
+	free(read);
 }
 
 int main(int argc, char **argv)

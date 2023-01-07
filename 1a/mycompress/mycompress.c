@@ -4,11 +4,11 @@
 
 // macro used to print usage
 // do while is not strictly needed but prevents errors when using the macro in some specific situations (but not in this program)
-#define USAGE()                                                    \
-	do                                                             \
-	{                                                              \
-		fprintf(stdout, "USAGE: %s [-o outfile] [file...]", name); \
-		exit(EXIT_FAILURE);                                        \
+#define USAGE()                                                    		\
+	do                                                             		\
+	{                                                              		\
+		fprintf(stdout, "USAGE: %s [-o outfile] [file...]\n", name); 	\
+		exit(EXIT_FAILURE);                                        		\
 	} while (0)
 
 // macro used to print errors, program still continues on

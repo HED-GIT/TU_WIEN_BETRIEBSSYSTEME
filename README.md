@@ -21,13 +21,6 @@
 
 ## todos
 
-- check for memory leaks in 1a
-  - binary-digits
-  - ispalindrom
-  - mycompress
-  - mydiff
-  - myexpand
-  - mygrep
 - memory leaks
   - check for memory leaks in 1b
     - client
@@ -46,5 +39,4 @@
     - check why so many frees are used
     - most likely cause of getline, get away from it and pass input without
   - mydiff switch away from getline
-  - check if i have to be ashamed of the 1a programs
   - check for minor bugs

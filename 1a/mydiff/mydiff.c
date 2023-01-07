@@ -6,11 +6,11 @@
 
 // macro used to print usage
 // do while is not strictly needed but prevents errors when using the macro in some specific situations (but not in this program)
-#define USAGE()                                                           \
-	do                                                                    \
-	{                                                                     \
-		fprintf(stdout, "USAGE: %s [-i] [-o outfile] file1 file2", name); \
-		exit(EXIT_FAILURE);                                               \
+#define USAGE()                                                           	\
+	do                                                                    	\
+	{                                                                     	\
+		fprintf(stdout, "USAGE: %s [-i] [-o outfile] file1 file2\n", name); \
+		exit(EXIT_FAILURE);                                               	\
 	} while (0)
 
 // macro used to print errors, program still continues on
@@ -57,17 +57,6 @@ static int char_to_compare(int character, Flags flags)
 	}
 }
 
-static int handler(char *text1, char *text2, Flags flags)
-{
-
-	if (*text1 == '\n' || *text2 == '\n' || *text1 == '\0' || *text2 == '\0')
-		return 0;
-	else if (char_to_compare(*text1, flags) == char_to_compare(*text2, flags))
-		return handler(++text1, ++text2, flags);
-	else
-		return 1 + handler(++text1, ++text2, flags);
-}
-
 static void handle_arguments(Flags *flags, FILES *file, int argc, char **argv)
 {
 	int opt;
@@ -97,8 +86,7 @@ static void handle_arguments(Flags *flags, FILES *file, int argc, char **argv)
 	{
 		USAGE();
 	}
-
-	file->in1 = fopen(argv[optind + 0], "r");
+	file->in1 = fopen(argv[optind], "r");
 	file->in2 = fopen(argv[optind + 1], "r");
 	if (file->in1 == NULL || file->in2 == NULL)
 	{
@@ -108,21 +96,36 @@ static void handle_arguments(Flags *flags, FILES *file, int argc, char **argv)
 
 static void handle_files(FILES *file, Flags flags)
 {
-	char *read1 = NULL;
-	char *read2 = NULL;
-	size_t size1 = 0;
-	size_t size2 = 0;
-	int row = 1;
-	while (getline(&read1, &size1, file->in1) != -1 && getline(&read2, &size2, file->in2) != -1)
-	{
-		int mistakes = handler(read1, read2, flags);
-		if (mistakes)
-			fprintf(file->out, "Line: %d Character: %d\n", row, mistakes);
-		row++;
-	}
+	int read1;
+	int read2;
 
-	free(read1);
-	free(read2);
+	int row = 1;
+
+	int mistakes = 0;
+	while((read1 = fgetc(file->in1)) != -1 && (read2 = fgetc(file->in2)) != -1){
+		if (read1 == '\n' || read2 == '\n' || read1 == -1 || read2 == -1){
+			if(mistakes != 0){
+				fprintf(file->out, "Line: %d Character: %d\n", row, mistakes);
+			}
+			if(read1 == '\n' || read1 == -1){
+				while(read2 != '\n' && read2 != -1){
+					read2 = fgetc(file->in2);
+				}
+			}
+			else if(read2 == '\n' || read2 == -1){
+				while(read1 != '\n' && read1 != -1) {
+					read1 = fgetc(file->in1);
+				}
+			}
+
+			row++;
+			mistakes = 0;
+		}
+		else if (char_to_compare(read1, flags) != char_to_compare(read2, flags)){
+			mistakes++;
+		}
+
+	}
 
 	if (!feof(file->in1) && !feof(file->in2))
 	{ // only one file has to be read to the end since it stops after fully reading one
