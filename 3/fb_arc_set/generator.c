@@ -43,7 +43,7 @@ static void read_input(const int argc, const char **argv, Edge *graph);
 
 static void permutations(int *permutation, const int n)
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i <= n; i++)
     {
         permutation[i] = i;
     }
@@ -67,7 +67,7 @@ static Solution calculate_one_solution(const int graphSize, const Edge *graph, c
     permutations(permutation, maxNode);
 
     counter = 0;
-    for (int i = 0; i < graphSize - 1; i++)
+    for (int i = 0; i < graphSize; i++)
     {
         for (int j = 0; j < maxNode + 1; j++)
         {
@@ -142,12 +142,12 @@ int main(int argc, const char **argv)
 
     read_input(argc, argv, graph);
 
-    int amountVertices = get_max_node(graph, argc);
+    int amountVertices = get_max_node(graph, argc-1);
 
     int state;
     while ((state = get_state()) > 0)
     {
-        Solution returns = calculate_one_solution(argc, graph, amountVertices);
+        Solution returns = calculate_one_solution(argc-1, graph, amountVertices);
 
         if (returns.amount < MAXRETURN)
         {

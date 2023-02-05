@@ -142,7 +142,7 @@ int main(int argc, const char **argv)
 
 
 	int max = 0;
-	for (int i = 0; i < argc; i++)
+	for (int i = 0; i < argc - 1; i++)
 	{
 		// we do not have to check if the start is bigger then the end since we sorted them that way during the read_input function
 		max = MAX(allEdges[i].end, max);

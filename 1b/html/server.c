@@ -148,7 +148,6 @@ static void startRequestHandling(int sock_fd,char * rootDoc, char * i_index) {
 
 		goToEndOfHeader(socketFile);
 
-		FILE *requestedFile;
 		if (strcmp(get, "GET") != 0) {
 			printHeader(socketFile, 501,NULL);
 			fflush(socketFile);
@@ -157,7 +156,7 @@ static void startRequestHandling(int sock_fd,char * rootDoc, char * i_index) {
 			continue;
 		}
 
-		requestedFile = fopen(fullPath, "r+");
+		FILE* requestedFile = fopen(fullPath, "r+");
 		if (requestedFile == NULL) {
 			printHeader(socketFile, 404,NULL);
 			fflush(socketFile);
